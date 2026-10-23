@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ScreenClock — 全屏床头 &amp; 桌面时钟</title>
+<link rel="icon" type="image/png" href="app-icon.png">
+<link rel="apple-touch-icon" href="app-icon.png">
 <meta name="description" content="ScreenClock 是一款开源的 Android 全屏时钟，支持多款主题钟面、番茄钟专注、纪念日倒计时与可选天气。">
 <script>
   (function () {
@@ -115,12 +117,9 @@
   }
   .brand-mark {
     width: 30px; height: 30px;
-    display: grid; place-items: center;
     border-radius: 9px;
-    background: var(--accent-soft);
-    color: var(--accent);
+    object-fit: cover;
   }
-  .brand-mark svg { width: 17px; height: 17px; }
 
   .nav-actions { display: flex; align-items: center; gap: 8px; }
 
@@ -519,12 +518,7 @@
 <nav class="nav" id="nav">
   <div class="container nav-inner">
     <a class="brand" href="#top">
-      <span class="brand-mark">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="9"/>
-          <polyline points="12 7.5 12 12 15 13.8"/>
-        </svg>
-      </span>
+      <img class="brand-mark" src="app-icon.png" alt="" width="30" height="30">
       ScreenClock
     </a>
 
