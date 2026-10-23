@@ -82,6 +82,8 @@ pairs=[
 ('ScreenClock 是开源项目 ·','ScreenClock is open source ·',1),
 ('>GitHub 仓库</a>','>GitHub repository</a>',1),
 ('>发布页面</a>','>Releases</a>',1),
+("aria-label=\"作者 AlexWuYh，打开 GitHub 个人主页\" title=\"GitHub 个人主页\"","aria-label=\"Author AlexWuYh — open GitHub profile\" title=\"GitHub profile\"",1),
+("<span>作者 <b>AlexWuYh</b></span>","<span>Author <b>AlexWuYh</b></span>",1),
 ("'切换到亮色主题' : '切换到暗色主题'","'Switch to light theme' : 'Switch to dark theme'",1),
 ]
 for a,b,n in pairs: rep(a,b,n)

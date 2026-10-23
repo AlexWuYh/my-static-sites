@@ -529,6 +529,18 @@
   }
   footer a:hover { color: var(--accent); }
 
+  .author-wrap { margin-top: 14px; }
+  .author-link {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 5px 14px 5px 5px;
+    border: 1px solid var(--border-strong); border-radius: 999px;
+    color: var(--text-soft); text-decoration: none;
+    transition: color .2s, background .2s, border-color .2s;
+  }
+  .author-link:hover { color: var(--text); background: var(--surface-2); }
+  .author-link img { width: 28px; height: 28px; border-radius: 50%; display: block; }
+  .author-link b { color: var(--text); font-weight: 650; }
+
   /* ================= 滚动出现动画 ================= */
   .reveal {
     opacity: 0;
@@ -819,6 +831,13 @@
       ScreenClock 是开源项目 ·
       <a href="https://github.com/AlexWuYh/ScreenClock" target="_blank" rel="noopener noreferrer">GitHub 仓库</a> ·
       <a href="https://github.com/AlexWuYh/ScreenClock/releases/latest" target="_blank" rel="noopener noreferrer">发布页面</a>
+    </p>
+    <p class="author-wrap">
+      <a class="author-link" href="https://github.com/AlexWuYh" target="_blank" rel="noopener noreferrer"
+         aria-label="作者 AlexWuYh，打开 GitHub 个人主页" title="GitHub 个人主页">
+        <img src="/author-avatar.jpg" alt="" width="28" height="28" loading="lazy">
+        <span>作者 <b>AlexWuYh</b></span>
+      </a>
     </p>
   </div>
 </footer>

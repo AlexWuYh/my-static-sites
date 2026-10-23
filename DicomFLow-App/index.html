@@ -295,6 +295,18 @@
   footer p + p { margin-top: 6px; font-size: .8rem; }
   footer a { color: var(--text-soft); }
 
+  .author-wrap { margin-top: 14px; }
+  .author-link {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 5px 14px 5px 5px;
+    border: 1px solid var(--border-strong); border-radius: 999px;
+    color: var(--text-soft); text-decoration: none;
+    transition: color .2s, background .2s, border-color .2s;
+  }
+  .author-link:hover { color: var(--text); background: var(--surface-2); }
+  .author-link img { width: 28px; height: 28px; border-radius: 50%; display: block; }
+  .author-link b { color: var(--text); font-weight: 650; }
+
   .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s var(--ease), transform .6s var(--ease); transition-delay: var(--d, 0ms); }
   .reveal.in { opacity: 1; transform: none; }
 
@@ -644,6 +656,13 @@
       <a href="https://github.com/AlexWuYh/DicomFlow-App/releases/latest" target="_blank" rel="noopener noreferrer">发布页面</a>
     </p>
     <p>App 捆绑的 FFmpeg（libx264）为 GPL-3.0，带编码器的安装包按 GPL-3.0 分发；捆绑的 7-Zip 为 LGPL（含 unRAR 限制）。</p>
+    <p class="author-wrap">
+      <a class="author-link" href="https://github.com/AlexWuYh" target="_blank" rel="noopener noreferrer"
+         aria-label="作者 AlexWuYh，打开 GitHub 个人主页" title="GitHub 个人主页">
+        <img src="/author-avatar.jpg" alt="" width="28" height="28" loading="lazy">
+        <span>作者 <b>AlexWuYh</b></span>
+      </a>
+    </p>
   </div>
 </footer>
 

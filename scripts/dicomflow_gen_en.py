@@ -180,6 +180,8 @@ PAIRS = [
      '>GitHub repository</a> ·\n      <a href="https://github.com/AlexWuYh/DicomFlow-App/releases/latest" target="_blank" rel="noopener noreferrer">App releases</a>', 1),
     ('App 捆绑的 FFmpeg（libx264）为 GPL-3.0，带编码器的安装包按 GPL-3.0 分发；捆绑的 7-Zip 为 LGPL（含 unRAR 限制）。',
      'The app bundles FFmpeg (libx264, GPL-3.0); builds that include it are distributed under GPL-3.0. The bundled 7-Zip is LGPL with the unRAR restriction.', 1),
+    ("aria-label=\"作者 AlexWuYh，打开 GitHub 个人主页\" title=\"GitHub 个人主页\"","aria-label=\"Author AlexWuYh — open GitHub profile\" title=\"GitHub profile\"",1),
+    ("<span>作者 <b>AlexWuYh</b></span>","<span>Author <b>AlexWuYh</b></span>",1),
     ("'切换到亮色主题' : '切换到暗色主题'", "'Switch to light theme' : 'Switch to dark theme'", 1),
 ]
 
