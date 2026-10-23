@@ -3,10 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ScreenClock — 全屏床头 &amp; 桌面时钟</title>
+<title>ScreenClock — Android 全屏时钟 · 床头时钟 · 番茄钟 · 旧手机改造</title>
 <link rel="icon" type="image/png" href="app-icon.png">
 <link rel="apple-touch-icon" href="app-icon.png">
-<meta name="description" content="ScreenClock 是一款开源的 Android 全屏时钟，支持多款主题钟面、番茄钟专注、纪念日倒计时与可选天气。">
+<meta name="description" content="ScreenClock 是一款免费开源的 Android 全屏时钟（床头时钟 / 桌面时钟），把闲置旧手机变成好看的翻页钟，支持十余款主题钟面、番茄钟专注、纪念日倒计时与可选天气。">
+<meta name="keywords" content="Android 全屏时钟, 床头时钟, 桌面时钟, 翻页时钟, 番茄钟, 纪念日倒计时, 旧手机改造, 开源, ScreenClock">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://screenclock.wuewa.cn/">
+<link rel="alternate" hreflang="zh-CN" href="https://screenclock.wuewa.cn/">
+<link rel="alternate" hreflang="en" href="https://screenclock.wuewa.cn/en/">
+<link rel="alternate" hreflang="x-default" href="https://screenclock.wuewa.cn/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ScreenClock">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:url" content="https://screenclock.wuewa.cn/">
+<meta property="og:title" content="ScreenClock — Android 全屏时钟 · 床头时钟 · 番茄钟">
+<meta property="og:description" content="把闲置的手机或平板变成好看、安静的全屏时钟：十余款主题钟面、番茄钟专注、纪念日倒计时。免费开源。">
+<meta property="og:image" content="https://screenclock.wuewa.cn/app-icon.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ScreenClock — Android 全屏时钟 · 床头时钟 · 番茄钟">
+<meta name="twitter:description" content="把闲置的手机或平板变成好看、安静的全屏时钟。免费开源。">
+<meta name="twitter:image" content="https://screenclock.wuewa.cn/app-icon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "ScreenClock",
+  "alternateName": "ScreenClock 全屏时钟",
+  "description": "免费开源的 Android 全屏时钟，支持十余款主题钟面、番茄钟专注、纪念日倒计时与可选天气。",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Android 8.0+",
+  "inLanguage": ["zh-CN", "en"],
+  "url": "https://screenclock.wuewa.cn/",
+  "image": "https://screenclock.wuewa.cn/app-icon.png",
+  "downloadUrl": "https://github.com/AlexWuYh/ScreenClock/releases/latest",
+  "softwareVersion": "0.4.0",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" },
+  "sameAs": ["https://github.com/AlexWuYh/ScreenClock"]
+}
+</script>
 <script>
   (function () {
     var t = null;
@@ -120,6 +157,16 @@
     border-radius: 9px;
     object-fit: cover;
   }
+
+  .lang-link {
+    font-size: .8rem; font-weight: 650;
+    color: var(--text-soft);
+    text-decoration: none;
+    padding: 6px 9px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+  }
+  .lang-link:hover { color: var(--text); background: var(--surface-2); }
 
   .nav-actions { display: flex; align-items: center; gap: 8px; }
 
@@ -518,13 +565,14 @@
 <nav class="nav" id="nav">
   <div class="container nav-inner">
     <a class="brand" href="#top">
-      <img class="brand-mark" src="app-icon.png" alt="" width="30" height="30">
+      <img class="brand-mark" src="app-icon.png" alt="ScreenClock 应用图标" width="30" height="30">
       ScreenClock
     </a>
 
     <div class="nav-actions">
       <a class="nav-link" href="#shots">界面预览</a>
       <a class="nav-link" href="#features">功能</a>
+      <a class="lang-link" href="/en/" hreflang="en" lang="en" title="English">EN</a>
 
       <!-- GitHub 仓库图标按钮 -->
       <a class="github-btn"
@@ -559,8 +607,8 @@
     <p class="tagline">把闲置的手机或平板，变成一面<strong>好看、安静</strong>的全屏时钟。</p>
 
     <p class="desc">
-      多款主题钟面、番茄钟专注、纪念日倒计时与可选天气，
-      放在床头或桌面都刚刚好。
+      一款免费开源的 Android 床头时钟 / 桌面时钟：多款主题钟面、番茄钟专注、
+      纪念日倒计时与可选天气，旧手机改造后放在床头或桌面都刚刚好。
     </p>
 
     <div class="hero-actions">

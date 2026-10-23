@@ -28,6 +28,18 @@ my-static-sites/
 3. 在上方「当前产品」表格中补充一行。
 4. 提交并推送。
 
+## ScreenClock 中英文页面
+
+- 中文页 `ScreenClock/index.html` 是源文件，英文页 `ScreenClock/en/index.html` 由脚本生成，**不要手动编辑英文页**。
+- 生成脚本：`scripts/screenclock_gen_en.py`，手动运行：`python3 scripts/screenclock_gen_en.py`。
+- 自动同步：仓库自带 `pre-commit` 钩子（`.githooks/`），提交中包含中文页时会自动重新生成并一并提交英文页。克隆仓库后需启用一次：
+
+  ```bash
+  git config core.hooksPath .githooks
+  ```
+
+- 若改动了中文页里脚本替换过的文案，脚本会报错并指出哪段文案没匹配上，此时同步更新脚本中的原文与译文即可。
+
 ## 本地预览
 
 页面均为纯静态文件，可直接用浏览器打开 `index.html`，或在对应目录启动一个静态服务器：

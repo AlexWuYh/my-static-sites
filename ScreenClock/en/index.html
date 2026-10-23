@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScreenClock — Fullscreen Clock for Android · Bedside &amp; Desk Clock · Pomodoro</title>
+<link rel="icon" type="image/png" href="/app-icon.png">
+<link rel="apple-touch-icon" href="/app-icon.png">
+<meta name="description" content="ScreenClock is a free, open-source fullscreen clock for Android. Turn an old phone or tablet into a bedside or desk flip clock with 10+ clock themes, a Pomodoro focus timer, anniversary countdowns and optional weather.">
+<meta name="keywords" content="Android fullscreen clock, bedside clock, desk clock, flip clock, Pomodoro timer, countdown, old phone clock, open source, ScreenClock">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://screenclock.wuewa.cn/en/">
+<link rel="alternate" hreflang="zh-CN" href="https://screenclock.wuewa.cn/">
+<link rel="alternate" hreflang="en" href="https://screenclock.wuewa.cn/en/">
+<link rel="alternate" hreflang="x-default" href="https://screenclock.wuewa.cn/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ScreenClock">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta property="og:url" content="https://screenclock.wuewa.cn/en/">
+<meta property="og:title" content="ScreenClock — Fullscreen Clock for Android">
+<meta property="og:description" content="Turn an idle phone or tablet into a calm, beautiful fullscreen clock: 10+ themes, Pomodoro focus timer, anniversary countdowns. Free and open source.">
+<meta property="og:image" content="https://screenclock.wuewa.cn/app-icon.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ScreenClock — Fullscreen Clock for Android">
+<meta name="twitter:description" content="Turn an idle phone or tablet into a calm, beautiful fullscreen clock. Free and open source.">
+<meta name="twitter:image" content="https://screenclock.wuewa.cn/app-icon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "ScreenClock",
+  "alternateName": "ScreenClock Fullscreen Clock",
+  "description": "Free, open-source fullscreen clock for Android with 10+ clock themes, a Pomodoro focus timer, anniversary countdowns and optional weather.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Android 8.0+",
+  "inLanguage": ["zh-CN", "en"],
+  "url": "https://screenclock.wuewa.cn/en/",
+  "image": "https://screenclock.wuewa.cn/app-icon.png",
+  "downloadUrl": "https://github.com/AlexWuYh/ScreenClock/releases/latest",
+  "softwareVersion": "0.4.0",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "sameAs": ["https://github.com/AlexWuYh/ScreenClock"]
+}
+</script>
+<script>
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('screenclock-theme'); } catch (e) {}
+    if (!t) {
+      t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+    }
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --container: 1000px;
+    --radius: 18px;
+    --ease: cubic-bezier(.22, .61, .36, 1);
+  }
+
+  html[data-theme="dark"] {
+    --bg: #070a10;
+    --surface: #0f1520;
+    --surface-2: #151c29;
+    --border: #202836;
+    --border-strong: #2e394b;
+    --text: #e9eef8;
+    --text-soft: #b3bece;
+    --muted: #7f8b9e;
+    --accent: #5eead4;
+    --accent-ink: #04120f;
+    --accent-soft: rgba(94, 234, 212, .12);
+    --glow: rgba(94, 234, 212, .13);
+    --nav-bg: rgba(7, 10, 16, .76);
+    --shadow: 0 30px 70px -30px rgba(0, 0, 0, .95);
+  }
+
+  html[data-theme="light"] {
+    --bg: #f4f7fb;
+    --surface: #ffffff;
+    --surface-2: #eef2f8;
+    --border: #e2e8f1;
+    --border-strong: #cfd8e6;
+    --text: #0e1626;
+    --text-soft: #3a4658;
+    --muted: #64748b;
+    --accent: #0d9488;
+    --accent-ink: #ffffff;
+    --accent-soft: rgba(13, 148, 136, .10);
+    --glow: rgba(13, 148, 136, .14);
+    --nav-bg: rgba(244, 247, 251, .8);
+    --shadow: 0 30px 70px -34px rgba(15, 23, 42, .35);
+  }
+
+  /* 锚点跳转时留出 sticky 导航的高度 */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 84px;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background-color: var(--bg);
+    background-image: radial-gradient(ellipse 90% 55% at 50% -10%, var(--glow), transparent 65%);
+    background-repeat: no-repeat;
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color .4s var(--ease), color .4s var(--ease);
+  }
+
+  .container { width: min(92%, var(--container)); margin-inline: auto; }
+
+  svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ================= NAV ================= */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--nav-bg);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .3s var(--ease), background-color .4s var(--ease);
+  }
+  .nav.scrolled { border-bottom-color: var(--border); }
+
+  .nav-inner {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: .95rem;
+    font-weight: 650;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -.01em;
+  }
+  .brand-mark {
+    width: 30px; height: 30px;
+    border-radius: 9px;
+    object-fit: cover;
+  }
+
+  .lang-link {
+    font-size: .8rem; font-weight: 650;
+    color: var(--text-soft);
+    text-decoration: none;
+    padding: 6px 9px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+  }
+  .lang-link:hover { color: var(--text); background: var(--surface-2); }
+
+  .nav-actions { display: flex; align-items: center; gap: 8px; }
+
+  .nav-link {
+    font-size: .85rem;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: color .2s var(--ease), background-color .2s var(--ease);
+  }
+  .nav-link:hover { color: var(--text); background: var(--surface-2); }
+
+  /* ---- GitHub 仓库图标按钮（实心 Octocat） ---- */
+  .github-btn {
+    width: 38px; height: 38px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-soft);
+    text-decoration: none;
+    transition: color .25s var(--ease), border-color .25s var(--ease),
+                background-color .35s var(--ease), transform .25s var(--ease);
+  }
+  .github-btn:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+    background: var(--surface-2);
+    transform: translateY(-1px);
+  }
+  .github-btn:active { transform: scale(.94); }
+
+  /* 关键：覆盖全局 svg 描边，让 Octocat 以实心填充显示 */
+  .github-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .theme-toggle {
+    width: 38px; height: 38px;
+    margin-left: 2px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: color .25s var(--ease), border-color .25s var(--ease),
+                background-color .35s var(--ease), transform .25s var(--ease);
+  }
+  .theme-toggle:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-1px); }
+  .theme-toggle:active { transform: scale(.94); }
+  .theme-toggle.spin { animation: btnSpin .55s var(--ease); }
+  @keyframes btnSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .theme-toggle svg { width: 18px; height: 18px; }
+  html[data-theme="dark"] .icon-sun { display: none; }
+  html[data-theme="light"] .icon-moon { display: none; }
+
+  /* ================= HERO ================= */
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: clamp(520px, 80vh, 780px);
+    padding: 72px 0 84px;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 44%;
+    width: min(760px, 130vw);
+    height: min(760px, 130vw);
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, var(--glow), transparent 62%);
+    animation: breathe 9s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes breathe {
+    from { opacity: .5; transform: translate(-50%, -50%) scale(.88); }
+    to   { opacity: 1;  transform: translate(-50%, -50%) scale(1.12); }
+  }
+
+  .hero-inner { position: relative; z-index: 1; }
+
+  .pill {
+    display: inline-block;
+    padding: 6px 14px;
+    margin-bottom: 22px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: .78rem;
+    letter-spacing: .04em;
+    color: var(--muted);
+  }
+  .pill b { color: var(--accent); font-weight: 600; }
+
+  .hero h1 {
+    font-size: clamp(2.6rem, 7.5vw, 4rem);
+    font-weight: 700;
+    letter-spacing: -.035em;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .tagline {
+    font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+    font-weight: 400;
+    color: var(--text-soft);
+    max-width: 620px;
+    margin: 0 auto 14px;
+  }
+  .tagline strong { color: var(--accent); font-weight: 600; }
+
+  .desc {
+    font-size: .96rem;
+    color: var(--muted);
+    max-width: 540px;
+    margin: 0 auto 38px;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 14px 32px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: .01em;
+    transition: transform .25s var(--ease), box-shadow .3s var(--ease),
+                background-color .35s var(--ease), color .35s var(--ease);
+    box-shadow: 0 12px 28px -14px var(--accent);
+  }
+  .download-btn svg { width: 19px; height: 19px; stroke-width: 2.2; }
+  .download-btn:hover { transform: translateY(-3px); box-shadow: 0 18px 40px -16px var(--accent); }
+  .download-btn:active { transform: translateY(-1px) scale(.99); }
+
+  .ghost-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 26px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text-soft);
+    font-size: .95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color .25s var(--ease), border-color .25s var(--ease),
+                transform .25s var(--ease), background-color .35s var(--ease);
+  }
+  .ghost-btn:hover { color: var(--text); border-color: var(--accent); transform: translateY(-3px); }
+
+  .hero-note { font-size: .8rem; color: var(--muted); letter-spacing: .01em; }
+
+  .hero-inner > * { animation: fadeUp .85s var(--ease) both; }
+  .hero-inner > *:nth-child(1) { animation-delay: .05s; }
+  .hero-inner > *:nth-child(2) { animation-delay: .13s; }
+  .hero-inner > *:nth-child(3) { animation-delay: .21s; }
+  .hero-inner > *:nth-child(4) { animation-delay: .29s; }
+  .hero-inner > *:nth-child(5) { animation-delay: .37s; }
+  .hero-inner > *:nth-child(6) { animation-delay: .45s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ================= SECTION ================= */
+  .section { padding: 84px 0; }
+
+  .section-head { max-width: 640px; margin-bottom: 48px; }
+
+  .section-label {
+    display: inline-block;
+    font-size: .74rem;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .section-head h2 {
+    font-size: clamp(1.6rem, 3.8vw, 2.15rem);
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+
+  .section-desc { font-size: .94rem; color: var(--muted); }
+
+  /* ================= 截图区（2×2 对称网格） ================= */
+  #shots {
+    background: linear-gradient(180deg, transparent, var(--surface-2) 18%, var(--surface-2) 82%, transparent);
+    transition: background .4s var(--ease);
+  }
+
+  .shots {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .shot-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    overflow: hidden;
+    transition: transform .4s var(--ease), border-color .3s var(--ease), box-shadow .4s var(--ease);
+  }
+  .shot-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow);
+  }
+
+  .shot-media {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--surface-2);
+    flex-shrink: 0;
+  }
+  .shot-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .6s var(--ease);
+  }
+  .shot-card:hover .shot-media img { transform: scale(1.03); }
+
+  .shot-body { padding: 20px 22px 24px; flex: 1; }
+  .shot-body h3 { font-size: 1rem; font-weight: 650; margin-bottom: 6px; }
+  .shot-body p { font-size: .85rem; line-height: 1.7; color: var(--muted); }
+
+  /* ================= 功能 ================= */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
+    gap: 16px;
+  }
+
+  .feature-card {
+    padding: 28px 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: transform .35s var(--ease), border-color .35s var(--ease),
+                background-color .4s var(--ease), box-shadow .35s var(--ease);
+  }
+  .feature-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow);
+  }
+
+  .feature-icon {
+    width: 42px; height: 42px;
+    display: grid; place-items: center;
+    margin-bottom: 18px;
+    border-radius: 11px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    transition: transform .35s var(--ease);
+  }
+  .feature-card:hover .feature-icon { transform: scale(1.08) rotate(-4deg); }
+  .feature-icon svg { width: 20px; height: 20px; }
+
+  .feature-card h3 { font-size: 1rem; font-weight: 650; margin-bottom: 7px; }
+  .feature-card p { font-size: .87rem; line-height: 1.7; color: var(--muted); }
+
+  .themes-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 40px;
+  }
+  .theme-tag {
+    padding: 8px 17px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: .82rem;
+    color: var(--muted);
+    transition: color .25s var(--ease), border-color .25s var(--ease),
+                transform .25s var(--ease), background-color .4s var(--ease);
+  }
+  .theme-tag:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  /* ================= CTA ================= */
+  .cta {
+    position: relative;
+    text-align: center;
+    padding: 96px 0 104px;
+    border-top: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .cta::before {
+    content: "";
+    position: absolute;
+    left: 50%; bottom: -40%;
+    width: min(700px, 120vw); height: min(700px, 120vw);
+    transform: translateX(-50%);
+    background: radial-gradient(circle, var(--glow), transparent 62%);
+    pointer-events: none;
+  }
+  .cta .container { position: relative; }
+  .cta h2 {
+    font-size: clamp(1.45rem, 3.4vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -.02em;
+    margin-bottom: 12px;
+  }
+  .cta p { color: var(--muted); font-size: .94rem; margin-bottom: 32px; }
+
+  /* ================= FOOTER ================= */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 30px 0;
+    text-align: center;
+    font-size: .8rem;
+    color: var(--muted);
+    transition: border-color .4s var(--ease);
+  }
+  footer a {
+    color: var(--text-soft);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color .2s var(--ease);
+  }
+  footer a:hover { color: var(--accent); }
+
+  /* ================= 滚动出现动画 ================= */
+  .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity .75s var(--ease), transform .75s var(--ease);
+    transition-delay: var(--d, 0ms);
+  }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ================= 响应式 ================= */
+  @media (max-width: 720px) {
+    .nav-link { display: none; }
+    .section { padding: 64px 0; }
+    .hero { padding: 48px 0 64px; min-height: auto; }
+    .shots { grid-template-columns: 1fr; }
+    .cta { padding: 72px 0 80px; }
+  }
+
+  /* ================= 减少动效偏好 ================= */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .001ms !important;
+      scroll-behavior: auto !important;
+    }
+    .reveal { opacity: 1 !important; transform: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== NAV ==================== -->
+<nav class="nav" id="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="#top">
+      <img class="brand-mark" src="/app-icon.png" alt="ScreenClock app icon" width="30" height="30">
+      ScreenClock
+    </a>
+
+    <div class="nav-actions">
+      <a class="nav-link" href="#shots">Screenshots</a>
+      <a class="nav-link" href="#features">Features</a>
+      <a class="lang-link" href="/" hreflang="zh-CN" lang="zh-CN" title="简体中文">中文</a>
+
+      <!-- GitHub 仓库图标按钮 -->
+      <a class="github-btn"
+         href="https://github.com/AlexWuYh/ScreenClock"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Open ScreenClock on GitHub" title="GitHub repository">
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </a>
+
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light/dark theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<header class="hero" id="top">
+  <div class="container hero-inner">
+    <span class="pill"><b>Open source</b> · Android 8.0+ · Free</span>
+
+    <h1>ScreenClock</h1>
+
+    <p class="tagline">Turn an idle phone or tablet into a <strong>calm, beautiful</strong> fullscreen clock.</p>
+
+    <p class="desc">
+      A free, open-source bedside and desk clock for Android: multiple clock themes,
+      a Pomodoro focus timer, anniversary countdowns and optional weather.
+      Give your old phone a second life on the nightstand or desk.
+    </p>
+
+    <div class="hero-actions">
+      <a class="download-btn"
+         href="https://github.com/AlexWuYh/ScreenClock/releases/latest"
+         target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download the latest APK
+      </a>
+      <a class="ghost-btn"
+         href="https://github.com/AlexWuYh/ScreenClock"
+         target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;">
+          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.1-1.5 6.1-6.7A5.2 5.2 0 0 0 19.8 4a4.9 4.9 0 0 0-.1-3.6s-1.2-.3-3.9 1.5a13.4 13.4 0 0 0-7 0C6 -.9 5.8-.6 5.8-.6A4.9 4.9 0 0 0 5.7 3a5.2 5.2 0 0 0-1.4 3.6c0 5.2 3.1 6.4 6.1 6.7a3.4 3.4 0 0 0-.9 2.6V22"/>
+        </svg>
+        View source
+      </a>
+    </div>
+
+    <p class="hero-note">v0.4.0 · Signed with a release key · Download directly from GitHub Releases</p>
+  </div>
+</header>
+
+<!-- ==================== 截图预览 ==================== -->
+<section class="section" id="shots">
+  <div class="container">
+
+    <div class="section-head reveal">
+      <span class="section-label">Screenshots</span>
+      <h2>See how it looks on your desk</h2>
+      <p class="section-desc">
+        From the flip clock to the Pomodoro timer and anniversary countdowns —
+        here is how it actually looks running on a phone.
+      </p>
+    </div>
+
+    <div class="shots">
+
+      <!-- 翻页钟面 -->
+      <figure class="shot-card reveal" style="--d:0ms">
+        <a class="shot-media"
+           href="https://raw.githubusercontent.com/AlexWuYh/ScreenClock/main/docs/images/clock-flip.webp"
+           target="_blank" rel="noopener noreferrer">
+          <img src="https://raw.githubusercontent.com/AlexWuYh/ScreenClock/main/docs/images/clock-flip.webp"
+               alt="ScreenClock flip clock theme in landscape: two large hour and minute flaps on a black background"
+               loading="lazy" width="1200" height="750">
+        </a>
+        <figcaption class="shot-body">
+          <h3>Flip theme · Landscape</h3>
+          <p>A mechanical flip clock with large hour and minute flaps on an ink-black background — one of the most classic looks in the app.</p>
+        </figcaption>
+      </figure>
+
+      <!-- 番茄钟专注 -->
+      <figure class="shot-card reveal" style="--d:100ms">
+        <a class="shot-media"
+           href="https://raw.githubusercontent.com/AlexWuYh/ScreenClock/main/docs/images/focus.webp"
+           target="_blank" rel="noopener noreferrer">
+          <img src="https://raw.githubusercontent.com/AlexWuYh/ScreenClock/main/docs/images/focus.webp"
+               alt="ScreenClock Pomodoro focus screen with a ring progress indicator and countdown"
+               loading="lazy" width="1200" height="750">
+        </a>
+        <figcaption class="shot-body">
+          <h3>Pomodoro focus</h3>
+          <p>A progress ring with a big countdown. Focus, short break, long break or custom durations; the timer keeps running when you go back to the clock.</p>
+        </figcaption>
+      </figure>
+
+      <!-- 纪念日倒计时 -->
+      <figure class="shot-card reveal" style="--d:200ms">
+        <a class="shot-media"
+           href="https://raw.githubusercontent.com/AlexWuYh/ScreenClock/main/docs/images/countdown.webp"
+           target="_blank" rel="noopener noreferrer">
+          <img src="https://raw.githubusercontent.com/AlexWuYh/ScreenClock/main/docs/images/countdown.webp"
+               alt="ScreenClock anniversary countdown showing days, hours, minutes and seconds"
+               loading="lazy" width="1200" height="750">
+        </a>
+        <figcaption class="shot-body">
+          <h3>Anniversary countdown</h3>
+          <p>Shown as days : hours : minutes : seconds, in a card or immersive style, with separate light and dark looks.</p>
+        </figcaption>
+      </figure>
+
+      <!-- 全部主题总览 -->
+      <figure class="shot-card reveal" style="--d:300ms">
+        <a class="shot-media"
+           href="https://raw.githubusercontent.com/AlexWuYh/ScreenClock/main/docs/images/themes-en.webp"
+           target="_blank" rel="noopener noreferrer">
+          <img src="https://raw.githubusercontent.com/AlexWuYh/ScreenClock/main/docs/images/themes-en.webp"
+               alt="All ScreenClock themes: the flip clock on the top left, the rest arranged in a grid"
+               loading="lazy" width="1200" height="750">
+        </a>
+        <figcaption class="shot-body">
+          <h3>All themes at a glance</h3>
+          <p>Flip, minimal digits, classic analog, earth, fluid, retro neon, tube, couple, cozy house and more — 10+ clock faces in one picture.</p>
+        </figcaption>
+      </figure>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 功能 ==================== -->
+<section class="section" id="features">
+  <div class="container">
+
+    <div class="section-head reveal">
+      <span class="section-label">Features</span>
+      <h2>More than a clock</h2>
+      <p class="section-desc">Beyond telling the time, ScreenClock comes with a few small features that stay useful every day.</p>
+    </div>
+
+    <div class="features">
+
+      <article class="feature-card reveal" style="--d:0ms">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <line x1="2" y1="10" x2="22" y2="10"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+          </svg>
+        </div>
+        <h3>Multiple clock themes</h3>
+        <p>Flip, minimal digits, classic hands, earth, fluid, neon, tube, couple, cozy house and more — 10+ styles, each with its own digit font.</p>
+      </article>
+
+      <article class="feature-card reveal" style="--d:90ms">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="13" r="8"/>
+            <path d="M12 9v4l2.5 2"/>
+            <path d="M9 2h6"/>
+          </svg>
+        </div>
+        <h3>Pomodoro focus timer</h3>
+        <p>A progress ring with a big countdown. Focus, short break, long break and custom modes; pause and resume, and the timer survives switching back to the clock.</p>
+      </article>
+
+      <article class="feature-card reveal" style="--d:180ms">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+            <path d="M8 14h.01M12 14h.01M16 14h.01"/>
+          </svg>
+        </div>
+        <h3>Anniversary countdown</h3>
+        <p>Card and immersive styles in light or dark, a custom icon per event, and quick dates for 7 days, 30 days, 100 days and this day next year.</p>
+      </article>
+
+      <article class="feature-card reveal" style="--d:270ms">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a4 4 0 0 0 0-8z"/>
+          </svg>
+        </div>
+        <h3>Optional weather</h3>
+        <p>Show the weather on the clock when you want it, hide it completely when you don't. Date, lunar calendar, weekday and holidays can each be toggled on their own.</p>
+      </article>
+
+    </div>
+
+    <div class="themes-strip reveal">
+      <span class="theme-tag">Flip</span>
+      <span class="theme-tag">Minimal Digits</span>
+      <span class="theme-tag">Classic Analog</span>
+      <span class="theme-tag">Earth</span>
+      <span class="theme-tag">Fluid</span>
+      <span class="theme-tag">Retro Neon</span>
+      <span class="theme-tag">Tube</span>
+      <span class="theme-tag">Couple</span>
+      <span class="theme-tag">Cozy House</span>
+      <span class="theme-tag">Minimal</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==================== CTA ==================== -->
+<section class="cta">
+  <div class="container reveal">
+    <h2>Ready to put your old phone back to work?</h2>
+    <p>Download the latest APK and install it on any device running Android 8.0 or later.</p>
+    <a class="download-btn"
+       href="https://github.com/AlexWuYh/ScreenClock/releases/latest"
+       target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Go to GitHub Releases
+    </a>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <div class="container">
+    <p>
+      ScreenClock is open source ·
+      <a href="https://github.com/AlexWuYh/ScreenClock" target="_blank" rel="noopener noreferrer">GitHub repository</a> ·
+      <a href="https://github.com/AlexWuYh/ScreenClock/releases/latest" target="_blank" rel="noopener noreferrer">Releases</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var root = document.documentElement;
+  var toggle = document.getElementById('themeToggle');
+
+  function syncLabel(theme) {
+    toggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+  }
+
+  function applyTheme(theme, persist) {
+    root.dataset.theme = theme;
+    if (persist) {
+      try { localStorage.setItem('screenclock-theme', theme); } catch (e) {}
+    }
+    syncLabel(theme);
+  }
+
+  applyTheme(root.dataset.theme || 'dark', false);
+
+  toggle.addEventListener('click', function () {
+    applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark', true);
+    toggle.classList.remove('spin');
+    void toggle.offsetWidth;
+    toggle.classList.add('spin');
+  });
+
+  /* ---------- 滚动出现动画 ---------- */
+  var reveals = document.querySelectorAll('.reveal');
+
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+    reveals.forEach(function (el) { io.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  /* ---------- 导航滚动状态 ---------- */
+  var nav = document.getElementById('nav');
+  function onScroll() {
+    nav.classList.toggle('scrolled', window.scrollY > 8);
+  }
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+})();
+</script>
+
+</body>
+</html>
