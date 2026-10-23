@@ -20,5 +20,16 @@
       "zh": "CT / MRI 片子转 MP4 / GIF",
       "en": "Convert CT / MRI scans to MP4 / GIF"
     }
+  },
+  {
+    "id": "jot",
+    "dir": "Jot",
+    "name": "Jot",
+    "url": "https://jot.wuewa.cn/",
+    "url_en": "https://jot.wuewa.cn/en/",
+    "desc": {
+      "zh": "本地优先的碎片笔记，AI 周期总结",
+      "en": "Local-first fragment notes with AI summaries"
+    }
   }
 ]

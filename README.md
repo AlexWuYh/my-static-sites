@@ -20,6 +20,7 @@ my-static-sites/
 | --- | --- | --- |
 | [`ScreenClock/`](./ScreenClock) | ScreenClock | 开源 Android 全屏床头 / 桌面时钟官网，支持多主题钟面、番茄钟、纪念日倒计时与天气 |
 | [`DicomFLow-App/`](./DicomFLow-App) | DicomFlow | 网页版 + App 的统一官网（医院 CT / MRI 片子转 MP4 / GIF），中英文双语 |
+| [`Jot/`](./Jot) | Jot（简迹） | 本地优先的碎片笔记 + AI 周期总结，支持 Windows / macOS / Android，中英文双语 |
 
 ## 新增产品
 
@@ -38,6 +39,7 @@ my-static-sites/
   | --- | --- | --- |
   | ScreenClock | `ScreenClock/index.html` | `scripts/screenclock_gen_en.py` |
   | DicomFlow | `DicomFLow-App/index.html` | `scripts/dicomflow_gen_en.py` |
+  | Jot | `Jot/index.html` | `scripts/jot_gen_en.py` |
 
 - 手动运行：`python3 scripts/<脚本名>.py`。
 - 自动同步：仓库自带 `pre-commit` 钩子（`.githooks/`），提交中包含上表中的中文页时，会自动重新生成并一并提交对应的英文页。克隆仓库后需启用一次：

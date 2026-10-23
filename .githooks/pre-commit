@@ -14,6 +14,10 @@ if echo "$staged" | grep -qx 'DicomFLow-App/index.html'; then
   python3 scripts/dicomflow_gen_en.py || exit 1
   touched=1
 fi
+if echo "$staged" | grep -qx 'Jot/index.html'; then
+  python3 scripts/jot_gen_en.py || exit 1
+  touched=1
+fi
 if echo "$staged" | grep -qx 'products.json'; then
   python3 scripts/sync_friend_links.py >/dev/null || exit 1
   touched=1
