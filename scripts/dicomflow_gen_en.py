@@ -193,3 +193,7 @@ for zh, en, n in PAIRS:
 
 Path(dst).parent.mkdir(parents=True, exist_ok=True)
 open(dst, 'w', encoding='utf-8').write(s)
+
+# 友情链接依赖 products.json，生成英文页后统一同步一次
+import subprocess
+subprocess.run([sys.executable, str(ROOT / 'scripts/sync_friend_links.py')], check=True, stdout=subprocess.DEVNULL)

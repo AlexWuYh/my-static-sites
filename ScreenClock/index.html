@@ -541,6 +541,13 @@
   .author-link img { width: 28px; height: 28px; border-radius: 50%; display: block; }
   .author-link b { color: var(--text); font-weight: 650; }
 
+  .friends {
+    margin-top: 16px;
+    display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+    gap: 6px 16px; font-size: .82rem;
+  }
+  .friends-label { color: var(--muted); }
+
   /* ================= 滚动出现动画 ================= */
   .reveal {
     opacity: 0;
@@ -839,6 +846,12 @@
         <span>作者 <b>AlexWuYh</b></span>
       </a>
     </p>
+    <!-- friends:start -->
+    <p class="friends">
+      <span class="friends-label">友情链接</span>
+      <a href="https://dicomflow.wuewa.cn/" target="_blank" rel="noopener" title="CT / MRI 片子转 MP4 / GIF">DicomFlow</a>
+    </p>
+    <!-- friends:end -->
   </div>
 </footer>
 

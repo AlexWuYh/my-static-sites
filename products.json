@@ -1,0 +1,24 @@
+[
+  {
+    "id": "screenclock",
+    "dir": "ScreenClock",
+    "name": "ScreenClock",
+    "url": "https://screenclock.wuewa.cn/",
+    "url_en": "https://screenclock.wuewa.cn/en/",
+    "desc": {
+      "zh": "Android 全屏床头 / 桌面时钟",
+      "en": "Fullscreen bedside / desk clock for Android"
+    }
+  },
+  {
+    "id": "dicomflow",
+    "dir": "DicomFLow-App",
+    "name": "DicomFlow",
+    "url": "https://dicomflow.wuewa.cn/",
+    "url_en": "https://dicomflow.wuewa.cn/en/",
+    "desc": {
+      "zh": "CT / MRI 片子转 MP4 / GIF",
+      "en": "Convert CT / MRI scans to MP4 / GIF"
+    }
+  }
+]
