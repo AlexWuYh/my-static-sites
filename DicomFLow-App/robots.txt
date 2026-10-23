@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dicomflow.wuewa.cn/sitemap.xml

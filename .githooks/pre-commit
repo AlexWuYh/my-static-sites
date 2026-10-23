@@ -1,7 +1,15 @@
 #!/bin/sh
-# 中文页变更时自动重新生成英文页并一并提交
-if git diff --cached --name-only | grep -qx 'ScreenClock/index.html'; then
+# 中文页变更时自动重新生成对应的英文页并一并提交
+staged=$(git diff --cached --name-only)
+
+if echo "$staged" | grep -qx 'ScreenClock/index.html'; then
   python3 scripts/screenclock_gen_en.py || exit 1
   git add ScreenClock/en/index.html
-  echo "pre-commit: 已根据 ScreenClock/index.html 同步 ScreenClock/en/index.html"
+  echo "pre-commit: 已同步 ScreenClock/en/index.html"
+fi
+
+if echo "$staged" | grep -qx 'DicomFLow-App/index.html'; then
+  python3 scripts/dicomflow_gen_en.py || exit 1
+  git add DicomFLow-App/en/index.html
+  echo "pre-commit: 已同步 DicomFLow-App/en/index.html"
 fi

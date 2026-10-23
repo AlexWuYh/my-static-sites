@@ -19,7 +19,7 @@ my-static-sites/
 | 目录 | 产品 | 说明 |
 | --- | --- | --- |
 | [`ScreenClock/`](./ScreenClock) | ScreenClock | 开源 Android 全屏床头 / 桌面时钟官网，支持多主题钟面、番茄钟、纪念日倒计时与天气 |
-| `DicomFLow-App/` | DicomFLow-App | 待添加 |
+| [`DicomFLow-App/`](./DicomFLow-App) | DicomFlow | 网页版 + App 的统一官网（医院 CT / MRI 片子转 MP4 / GIF），中英文双语 |
 
 ## 新增产品
 
@@ -28,11 +28,17 @@ my-static-sites/
 3. 在上方「当前产品」表格中补充一行。
 4. 提交并推送。
 
-## ScreenClock 中英文页面
+## 中英文页面（自动同步）
 
-- 中文页 `ScreenClock/index.html` 是源文件，英文页 `ScreenClock/en/index.html` 由脚本生成，**不要手动编辑英文页**。
-- 生成脚本：`scripts/screenclock_gen_en.py`，手动运行：`python3 scripts/screenclock_gen_en.py`。
-- 自动同步：仓库自带 `pre-commit` 钩子（`.githooks/`），提交中包含中文页时会自动重新生成并一并提交英文页。克隆仓库后需启用一次：
+- 中文页是源文件，英文页（`en/index.html`）由脚本生成，**不要手动编辑英文页**。
+
+  | 产品 | 中文页 | 生成脚本 |
+  | --- | --- | --- |
+  | ScreenClock | `ScreenClock/index.html` | `scripts/screenclock_gen_en.py` |
+  | DicomFlow | `DicomFLow-App/index.html` | `scripts/dicomflow_gen_en.py` |
+
+- 手动运行：`python3 scripts/<脚本名>.py`。
+- 自动同步：仓库自带 `pre-commit` 钩子（`.githooks/`），提交中包含上表中的中文页时，会自动重新生成并一并提交对应的英文页。克隆仓库后需启用一次：
 
   ```bash
   git config core.hooksPath .githooks

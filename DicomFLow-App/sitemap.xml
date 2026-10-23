@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://dicomflow.wuewa.cn/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://dicomflow.wuewa.cn/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://dicomflow.wuewa.cn/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://dicomflow.wuewa.cn/"/>
+    <lastmod>2026-10-23</lastmod>
+  </url>
+  <url>
+    <loc>https://dicomflow.wuewa.cn/en/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://dicomflow.wuewa.cn/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://dicomflow.wuewa.cn/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://dicomflow.wuewa.cn/"/>
+    <lastmod>2026-10-23</lastmod>
+  </url>
+</urlset>
