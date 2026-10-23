@@ -515,7 +515,7 @@
   /* ================= FOOTER ================= */
   footer {
     border-top: 1px solid var(--border);
-    padding: 30px 0;
+    padding: 20px 0 22px;
     text-align: center;
     font-size: .8rem;
     color: var(--muted);
@@ -529,22 +529,27 @@
   }
   footer a:hover { color: var(--accent); }
 
-  .author-wrap { margin-top: 14px; }
+  .footer-meta {
+    margin-top: 12px;
+    display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+    gap: 8px 22px;
+  }
+  .author-wrap { margin: 0; }
   .author-link {
     display: inline-flex; align-items: center; gap: 9px;
-    padding: 5px 14px 5px 5px;
+    padding: 3px 12px 3px 3px;
     border: 1px solid var(--border-strong); border-radius: 999px;
     color: var(--text-soft); text-decoration: none;
     transition: color .2s, background .2s, border-color .2s;
   }
   .author-link:hover { color: var(--text); background: var(--surface-2); }
-  .author-link img { width: 28px; height: 28px; border-radius: 50%; display: block; }
+  .author-link img { width: 24px; height: 24px; border-radius: 50%; display: block; }
   .author-link b { color: var(--text); font-weight: 650; }
 
   .friends {
-    margin-top: 16px;
+    margin: 0;
     display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
-    gap: 6px 16px; font-size: .82rem;
+    gap: 4px 14px; font-size: .82rem;
   }
   .friends-label { color: var(--muted); }
 
@@ -840,10 +845,11 @@
       <a href="https://github.com/AlexWuYh/ScreenClock" target="_blank" rel="noopener noreferrer">GitHub repository</a> ·
       <a href="https://github.com/AlexWuYh/ScreenClock/releases/latest" target="_blank" rel="noopener noreferrer">Releases</a>
     </p>
+    <div class="footer-meta">
     <p class="author-wrap">
       <a class="author-link" href="https://github.com/AlexWuYh" target="_blank" rel="noopener noreferrer"
          aria-label="Author AlexWuYh — open GitHub profile" title="GitHub profile">
-        <img src="/author-avatar.jpg" alt="" width="28" height="28" loading="lazy">
+        <img src="/author-avatar.jpg" alt="" width="24" height="24" loading="lazy">
         <span>Author <b>AlexWuYh</b></span>
       </a>
     </p>
@@ -853,6 +859,7 @@
       <a href="https://dicomflow.wuewa.cn/en/" target="_blank" rel="noopener" title="Convert CT / MRI scans to MP4 / GIF">DicomFlow</a>
     </p>
     <!-- friends:end -->
+    </div>
   </div>
 </footer>
 
