@@ -101,7 +101,7 @@
         continue;
       }
       if (list) { out.push('</ul>'); list = false; }
-      if ((m = /^#{1,6}\s+(.*)$/.exec(line))) out.push('<h4>' + inline(m[1]) + '</h4>');
+      if ((m = /^(#{1,6})\s+(.*)$/.exec(line))) out.push('<h4 class="cl-h' + Math.min(m[1].length, 4) + '">' + inline(m[2]) + '</h4>');
       else if (line.trim()) out.push('<p>' + inline(line.trim()) + '</p>');
     }
     if (list) out.push('</ul>');
@@ -199,7 +199,10 @@
     '.cl-date{color:var(--muted);font-size:.85rem}' +
     '.cl-badge{font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}' +
     '.cl-body{padding:0 20px 18px;color:var(--text-soft);font-size:.94rem;line-height:1.7;border-top:1px solid var(--border)}' +
-    '.cl-body h4{margin:14px 0 4px;color:var(--text);font-size:.95rem}' +
+    '.cl-body h4{margin:14px 0 4px;color:var(--text);font-size:.95rem;font-weight:650;line-height:1.4}' +
+    '.cl-body h4.cl-h1{margin-top:22px;font-size:1.3rem;font-weight:800}' +
+    '.cl-body h4.cl-h2{margin-top:22px;padding-bottom:6px;border-bottom:1px solid var(--border);font-size:1.15rem;font-weight:750}' +
+    '.cl-body h4.cl-h3{margin-top:18px;font-size:1.02rem;font-weight:700}' +
     '.cl-body p{margin:8px 0}.cl-body ul{margin:8px 0;padding-left:1.3em}.cl-body li{margin:3px 0}' +
     '.cl-code:not(.code){margin:12px 0;border-radius:10px;overflow:hidden;background:#0e1621;border:1px solid #22344a}' +
     '.cl-code:not(.code) pre{margin:0;padding:14px 16px;overflow-x:auto;color:#d6e2f0;font:.82rem/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}' +
@@ -209,7 +212,7 @@
     '.cl-table th{background:var(--surface-2);color:var(--text);font-weight:600}' +
     '.cl-body code{background:var(--surface-2);padding:1px 5px;border-radius:5px;font-size:.88em}' +
     '.cl-body a,.cl-more a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}' +
-    '.cl-body>:first-child{margin-top:14px}' +
+    '.cl-body>:first-child{margin-top:14px!important}' +
     '.cl-status,.cl-more{margin-top:18px;color:var(--muted);font-size:.92rem}';
   document.head.appendChild(style);
 
