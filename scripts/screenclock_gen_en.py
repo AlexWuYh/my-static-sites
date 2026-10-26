@@ -53,7 +53,7 @@ pairs=[
       Give your old phone a second life on the nightstand or desk.''',1),
 ('下载最新版 APK','Download the latest APK',1),
 ('查看源码','View source',1),
-('<span data-latest-version>v0.4.0</span> · 发布密钥签名 · 从 GitHub Releases 直接下载','<span data-latest-version>v0.4.0</span> · Signed with a release key · Download directly from GitHub Releases',1),
+('<a class="ver-badge" href="#changelog" data-latest-version>v0.4.0</a> 发布密钥签名 · 从 GitHub Releases 直接下载','<a class="ver-badge" href="#changelog" data-latest-version>v0.4.0</a> Signed with a release key · Download directly from GitHub Releases',1),
 ('<span class="section-label">界面预览</span>','<span class="section-label">Screenshots</span>',1),
 ('看看它在桌面上是什么样','See how it looks on your desk',1),
 ('''        从翻页钟面到番茄钟专注，再到纪念日倒计时，

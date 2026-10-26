@@ -162,7 +162,7 @@
       var latest = list.filter(function (r) { return !r.prerelease; })[0] || list[0];
       if (!latest) return;
       for (var i = 0; i < tags.length; i++) {
-        tags[i].textContent = latest.tag_name + (tags[i].getAttribute('data-suffix') || '');
+        tags[i].textContent = latest.tag_name;
         tags[i].hidden = false;
       }
     });
@@ -172,6 +172,10 @@
   // ---- 2. 更新日志区块 + 导航入口 ----
   var style = document.createElement('style');
   style.textContent =
+    '.ver-badge{display:inline-block;margin-right:6px;padding:2px 11px;border-radius:99px;font-size:.92rem;font-weight:700;letter-spacing:.2px;' +
+    'color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);text-decoration:none;vertical-align:baseline;transition:background .2s,color .2s}' +
+    '.ver-badge:hover{background:var(--accent);color:var(--accent-ink)}' +
+    '.ver-badge[hidden]{display:none}' +
     '.cl-list{margin-top:28px;display:grid;gap:14px}' +
     '.cl-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius,16px);padding:0}' +
     '.cl-item>summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:16px 20px}' +
