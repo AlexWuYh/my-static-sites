@@ -176,9 +176,6 @@
     '.ver-badge{display:inline-block;margin-right:6px;padding:2px 11px;border-radius:99px;font-size:.92rem;font-weight:700;letter-spacing:.2px;' +
     'color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);text-decoration:none;vertical-align:baseline;transition:background .2s,color .2s}' +
     '.ver-badge[data-label]::before{content:attr(data-label);margin-right:8px;padding-right:8px;border-right:1px solid currentColor;font-weight:600;font-size:.82em;opacity:.9}' +
-    '.ver-badge::after{content:"";display:inline-block;width:6px;height:6px;margin-left:7px;border-radius:50%;background:currentColor;vertical-align:middle;position:relative;top:-1px;animation:ver-pulse 2s ease-in-out infinite}' +
-    '@keyframes ver-pulse{50%{opacity:.35}}' +
-    '@media (prefers-reduced-motion:reduce){.ver-badge::after{animation:none}}' +
     '.ver-badge:hover{background:var(--accent);color:var(--accent-ink)}' +
     '.ver-badge[hidden]{display:none}' +
     '.cl-list{margin-top:28px;display:grid;gap:14px}' +
