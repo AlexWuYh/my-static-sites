@@ -48,7 +48,11 @@
     s = esc(s);
     s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
     s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, function (_, t, u) {
+    s = s.replace(/\[([^\]]+)\]\(([^\s)]+)\)/g, function (_, t, u) {
+      // 仓库内相对路径（如 docs/x.md）指向仓库里的文件；其他协议（javascript: 等）一律丢弃
+      if (!/^[a-z][a-z0-9+.-]*:/i.test(u) && u.charAt(0) !== '#' && u.charAt(0) !== '/') {
+        u = 'https://github.com/' + repo + '/blob/HEAD/' + u.replace(/^\.\//, '');
+      }
       return '<a href="' + safeUrl(u) + '" target="_blank" rel="noopener noreferrer">' + t + '</a>';
     });
     s = s.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, function (_, p, u) {
