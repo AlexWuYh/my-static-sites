@@ -890,7 +890,11 @@ unset EDP_ADMIN_TOKEN EDP_WEB_PASSWORD</pre></div>
   }
 
   var HL = { bash: hlBash, json: hlJson, yaml: hlYaml };
-  [].forEach.call(document.querySelectorAll('.code'), function (box) {
+  function enhance(root) {
+  [].forEach.call(root.querySelectorAll('.code, .cl-code'), function (box) {
+    if (box.getAttribute('data-enhanced')) return;
+    box.setAttribute('data-enhanced', '1');
+    box.classList.add('code');
     var pre = box.querySelector('pre');
     var raw = pre.textContent.replace(/\n$/, '');
     var fn = HL[box.getAttribute('data-lang')];
@@ -916,6 +920,9 @@ unset EDP_ADMIN_TOKEN EDP_WEB_PASSWORD</pre></div>
     bar.appendChild(btn);
     box.insertBefore(bar, pre);
   });
+  }
+  window.edpEnhanceCode = enhance;  // 更新日志渲染后也会调用
+  enhance(document);
 
   var reveals = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window) {

@@ -72,6 +72,16 @@
     var out = [], list = false, lines = String(src || '').replace(/\r/g, '').split('\n');
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i], m;
+      // 围栏代码块：```lang ... ```
+      if ((m = /^\s*```\s*([\w+-]*)/.exec(line))) {
+        if (list) { out.push('</ul>'); list = false; }
+        var lang = m[1].toLowerCase(), buf = [];
+        for (i++; i < lines.length && !/^\s*```\s*$/.test(lines[i]); i++) buf.push(lines[i]);
+        lang = { sh: 'bash', shell: 'bash', zsh: 'bash', console: 'bash', yml: 'yaml' }[lang] || lang;
+        out.push('<div class="cl-code" data-lang="' + esc(lang) + '" data-title="' +
+          esc(lang === 'bash' || !lang ? 'Terminal' : lang) + '"><pre>' + esc(buf.join('\n')) + '</pre></div>');
+        continue;
+      }
       // 表格：表头行含 |，下一行是 --- 分隔行
       if (line.indexOf('|') >= 0 && i + 1 < lines.length && SEP.test(lines[i + 1]) && lines[i + 1].indexOf('-') >= 0) {
         if (list) { out.push('</ul>'); list = false; }
@@ -191,6 +201,8 @@
     '.cl-body{padding:0 20px 18px;color:var(--text-soft);font-size:.94rem;line-height:1.7;border-top:1px solid var(--border)}' +
     '.cl-body h4{margin:14px 0 4px;color:var(--text);font-size:.95rem}' +
     '.cl-body p{margin:8px 0}.cl-body ul{margin:8px 0;padding-left:1.3em}.cl-body li{margin:3px 0}' +
+    '.cl-code:not(.code){margin:12px 0;border-radius:10px;overflow:hidden;background:#0e1621;border:1px solid #22344a}' +
+    '.cl-code:not(.code) pre{margin:0;padding:14px 16px;overflow-x:auto;color:#d6e2f0;font:.82rem/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}' +
     '.cl-table{overflow-x:auto;margin:10px 0}' +
     '.cl-table table{border-collapse:collapse;font-size:.9rem;min-width:50%}' +
     '.cl-table th,.cl-table td{border:1px solid var(--border);padding:6px 12px;text-align:left;vertical-align:top}' +
@@ -248,6 +260,8 @@
         '<div class="cl-body">' + (md(r.body) || '<p>' + T.noNotes + '</p>') + '</div></details>';
     }).join('') +
       '<p class="cl-more"><a href="' + releasesUrl + '" target="_blank" rel="noopener noreferrer">' + T.all + ' →</a></p>';
+    // 页面如果提供了代码块增强函数（Mac 窗口 + 语法高亮），就交给它
+    if (window.edpEnhanceCode) window.edpEnhanceCode(box);
   }
   subscribe(render);
   // 区块滚动到视口附近才请求（若上面的版本号已触发则不重复）

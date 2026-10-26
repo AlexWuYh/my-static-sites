@@ -1,4 +1,13 @@
 {
  "repo": "AlexWuYh/easy-docker-proxy",
- "releases": []
+ "releases": [
+  {
+   "tag_name": "v0.1.0",
+   "name": "v0.1.0 — First release",
+   "published_at": "2026-10-26T07:52:09Z",
+   "prerelease": false,
+   "body": "## 🎉 easy-docker-proxy v0.1.0 · 首个正式版 / First release\n\n轻量的**多上游 Docker Registry 只读加速代理**：一个域名、客户端镜像名不改写、零镜像缓存。\nA lightweight, read-only **multi-upstream Docker Registry pull-through proxy**: one domain, unchanged image names, zero layer cache.\n\n### ✨ 亮点 / Highlights\n\n- **单域名混合接入 / Single-domain access** — Docker Hub 通过 `registry-mirrors` 直接加速；其他仓库用路径前缀，如 `reg.example.com/ghcr.io/owner/app:tag`（无需 DNS 劫持）。\n- **流式转发，零缓存 / Streaming, no cache** — 不落盘镜像层，不挂载 `docker.sock`。\n- **多上游与鉴权 / Multi-upstream auth** — 上游支持 `token` / `anonymous` / `basic`；Token 换发带 realm 白名单；`upstream_allowlist` 校验上游主机。\n- **可选客户端认证 / Optional pull auth** — `off` / `optional` / `required`，使用独立的拉取账号。\n- **拉取记录与 Stats / Pull records & Stats** — 异步写入 SQLite（事件 + 日聚合），Web 控制台含仪表盘、上游分析、镜像与事件列表；viewer 只读，admin 管理账号。\n- **运维友好 / Ops-ready** — ACL、限流、`trusted_proxies`、可选 `/metrics`（需鉴权）、`/-/reload` 热重载（仅 admin）。\n- **安全默认 / Secure by default** — 密钥仅走环境变量；管理 API 仅接受 Bearer / `X-Admin-Token`，禁止 `?token=`；数据面重定向防 SSRF。\n\n### 🔒 本版硬化 / Hardening in this release\n\n- 出站重定向防 SSRF，热重载后旧请求不污染新配置缓存\n- 拉取记录写失败可观测；展示 `pull_user`；最后一个管理员的并发保护\n- Stats 界面：移动端适配、ARIA、分页，以及加载 / 错误 / 竞态状态处理\n- 可执行的 TLS / 可信代理 / 备份说明，文档拆分为安装、配置、排障\n\n### 🚀 快速开始 / Quick start\n\n```bash\ngit clone https://github.com/AlexWuYh/easy-docker-proxy.git\ncd easy-docker-proxy\ncp .env.example .env                       # 填入 PROXY_ADMIN_TOKEN / PROXY_WEB_PASSWORD\ncp configs/config.docker.yaml configs/config.yaml   # 把 hosts 改成你的真实域名\ndocker compose --env-file .env -f deploy/docker-compose.yaml up -d --build\n```\n\n或下载下方的 **源码包 `easy-docker-proxy-v0.1.0-source.zip`**（附 `.sha256` 校验文件）解压后按相同步骤操作。\nOr download the **source package** below (with a `.sha256` checksum) and follow the same steps.\n\n### 📚 文档 / Docs\n\n| 文档 | 说明 |\n|------|------|\n| [README](https://github.com/AlexWuYh/easy-docker-proxy#readme) | 简介与速查 / Overview |\n| [docs/install.md](https://github.com/AlexWuYh/easy-docker-proxy/blob/v0.1.0/docs/install.md) | 安装与配置详解 |\n| [docs/configuration.md](https://github.com/AlexWuYh/easy-docker-proxy/blob/v0.1.0/docs/configuration.md) | 配置参考 |\n| [docs/troubleshooting.md](https://github.com/AlexWuYh/easy-docker-proxy/blob/v0.1.0/docs/troubleshooting.md) | 故障排查 |\n| [deploy/README.md](https://github.com/AlexWuYh/easy-docker-proxy/blob/v0.1.0/deploy/README.md) | 部署架构、安全清单、备份 |\n\n### ⚠️ 已知限制 / Notes\n\n- 仅支持**只读拉取**，不支持 push；Stats 控制台**不提供**在线修改配置。\n- Webhook / PostgreSQL 等增强功能尚未提供（规划中）。\n\n**Full Changelog**: https://github.com/AlexWuYh/easy-docker-proxy/commits/v0.1.0\n",
+   "html_url": "https://github.com/AlexWuYh/easy-docker-proxy/releases/tag/v0.1.0"
+  }
+ ]
 }
