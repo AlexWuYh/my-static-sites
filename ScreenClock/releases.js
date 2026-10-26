@@ -231,7 +231,7 @@
       var name = r.name && r.name !== r.tag_name ? '<span class="cl-name">' + esc(r.name) + '</span>' : '';
       var badge = r.prerelease ? '<span class="cl-badge">' + T.pre + '</span>'
         : (i === firstStable ? '<span class="cl-badge">' + T.latest + '</span>' : '');
-      var open = r.tag_name in opened ? opened[r.tag_name] : i === 0;
+      var open = r.tag_name in opened ? opened[r.tag_name] : false;
       return '<details class="cl-item" data-tag="' + esc(r.tag_name) + '"' + (open ? ' open' : '') + '>' +
         '<summary><span class="cl-tag">' + esc(r.tag_name) + '</span>' + badge + name +
         '<span class="cl-date">' + fmtDate(r.published_at || r.created_at) + '</span></summary>' +
