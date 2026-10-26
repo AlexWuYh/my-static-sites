@@ -57,20 +57,39 @@
     return s;
   }
 
-  // 精简 Markdown：标题、列表、段落（够用于 release notes）
+  function cells(line) {
+    line = line.trim().replace(/^\|/, '').replace(/\|$/, '');
+    return line.split(/(?<!\\)\|/).map(function (c) { return c.replace(/\\\|/g, '|').trim(); });
+  }
+  var SEP = /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/;
+
+  // 精简 Markdown：标题、列表、表格、段落（够用于 release notes）
   function md(src) {
-    var out = [], list = false;
-    String(src || '').replace(/\r/g, '').split('\n').forEach(function (line) {
-      var m;
+    var out = [], list = false, lines = String(src || '').replace(/\r/g, '').split('\n');
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i], m;
+      // 表格：表头行含 |，下一行是 --- 分隔行
+      if (line.indexOf('|') >= 0 && i + 1 < lines.length && SEP.test(lines[i + 1]) && lines[i + 1].indexOf('-') >= 0) {
+        if (list) { out.push('</ul>'); list = false; }
+        var head = cells(line), t = '<div class="cl-table"><table><thead><tr>' +
+          head.map(function (c) { return '<th>' + inline(c) + '</th>'; }).join('') + '</tr></thead><tbody>';
+        i += 2;
+        for (; i < lines.length && lines[i].indexOf('|') >= 0 && lines[i].trim(); i++) {
+          t += '<tr>' + cells(lines[i]).map(function (c) { return '<td>' + inline(c) + '</td>'; }).join('') + '</tr>';
+        }
+        i--;
+        out.push(t + '</tbody></table></div>');
+        continue;
+      }
       if ((m = /^\s*[-*+]\s+(.*)$/.exec(line))) {
         if (!list) { out.push('<ul>'); list = true; }
         out.push('<li>' + inline(m[1]) + '</li>');
-        return;
+        continue;
       }
       if (list) { out.push('</ul>'); list = false; }
       if ((m = /^#{1,6}\s+(.*)$/.exec(line))) out.push('<h4>' + inline(m[1]) + '</h4>');
       else if (line.trim()) out.push('<p>' + inline(line.trim()) + '</p>');
-    });
+    }
     if (list) out.push('</ul>');
     return out.join('');
   }
@@ -162,6 +181,10 @@
     '.cl-body{padding:0 20px 18px;color:var(--text-soft);font-size:.94rem;line-height:1.7;border-top:1px solid var(--border)}' +
     '.cl-body h4{margin:14px 0 4px;color:var(--text);font-size:.95rem}' +
     '.cl-body p{margin:8px 0}.cl-body ul{margin:8px 0;padding-left:1.3em}.cl-body li{margin:3px 0}' +
+    '.cl-table{overflow-x:auto;margin:10px 0}' +
+    '.cl-table table{border-collapse:collapse;font-size:.9rem;min-width:50%}' +
+    '.cl-table th,.cl-table td{border:1px solid var(--border);padding:6px 12px;text-align:left;vertical-align:top}' +
+    '.cl-table th{background:var(--surface-2);color:var(--text);font-weight:600}' +
     '.cl-body code{background:var(--surface-2);padding:1px 5px;border-radius:5px;font-size:.88em}' +
     '.cl-body a,.cl-more a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}' +
     '.cl-body>:first-child{margin-top:14px}' +
