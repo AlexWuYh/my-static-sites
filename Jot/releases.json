@@ -1,0 +1,37 @@
+{
+ "repo": "AlexWuYh/Jot",
+ "releases": [
+  {
+   "tag_name": "v0.2.11",
+   "name": "Jot v0.2.11",
+   "published_at": "2026-07-29T08:03:35Z",
+   "prerelease": false,
+   "body": "## Jot v0.2.11\n\nAuto-built from `main` (`93f33f79b4ab901b76ebacb215a61ae4f87c76dd`).\n\n| Field | Value |\n|-------|-------|\n| Version name | `0.2.11` |\n| Version code | `11` |\n| Commit | `93f33f79b4ab901b76ebacb215a61ae4f87c76dd` |\n\n### Install packages\n\n| Platform | File | How to install |\n|----------|------|----------------|\n| **Android** | `*-android-release.apk` | Transfer to phone → open → allow install (debug-keystore; not Play Store) |\n| **Windows** | `*-windows-x64-setup.exe` | Run the setup wizard (unsigned — SmartScreen may warn) |\n| **macOS Apple Silicon** | `*-macos-arm64.dmg` | Open DMG → drag **Jot** to **Applications** |\n| **macOS Intel** | `*-macos-x64.dmg` | Same as above (x86_64) |\n\nPortable zips may also be attached for Windows / macOS.\n\nLinux / iOS packages are not produced by CI.\n\nSee [docs/branching-and-release.md](docs/branching-and-release.md).\n\n\n**Full Changelog**: https://github.com/AlexWuYh/Jot/compare/v0.2.10...v0.2.11",
+   "html_url": "https://github.com/AlexWuYh/Jot/releases/tag/v0.2.11"
+  },
+  {
+   "tag_name": "v0.2.10",
+   "name": "Jot v0.2.10",
+   "published_at": "2026-07-29T07:42:23Z",
+   "prerelease": false,
+   "body": "## Jot v0.2.10\n\nAuto-built from `main` (`3a38598b9871c27d3622d2f4c0ffc6ae0957c5a2`).\n\n| Field | Value |\n|-------|-------|\n| Version name | `0.2.10` |\n| Version code | `10` |\n| Commit | `3a38598b9871c27d3622d2f4c0ffc6ae0957c5a2` |\n\n### Install packages\n\n| Platform | File | How to install |\n|----------|------|----------------|\n| **Android** | `*-android-release.apk` | Transfer to phone → open → allow install (debug-keystore; not Play Store) |\n| **Windows** | `*-windows-x64-setup.exe` | Run the setup wizard (unsigned — SmartScreen may warn) |\n| **macOS Apple Silicon** | `*-macos-arm64.dmg` | Open DMG → drag **Jot** to **Applications** |\n| **macOS Intel** | `*-macos-x64.dmg` | Same as above (x86_64) |\n\nPortable zips may also be attached for Windows / macOS.\n\nLinux / iOS packages are not produced by CI.\n\nSee [docs/branching-and-release.md](docs/branching-and-release.md).\n\n\n**Full Changelog**: https://github.com/AlexWuYh/Jot/compare/v0.2.9...v0.2.10",
+   "html_url": "https://github.com/AlexWuYh/Jot/releases/tag/v0.2.10"
+  },
+  {
+   "tag_name": "v0.2.9",
+   "name": "Jot v0.2.9",
+   "published_at": "2026-07-24T08:39:44Z",
+   "prerelease": false,
+   "body": "## Jot v0.2.9\n\nAuto-built from `main` (`9b9fb665f51aa0e24ed0c91782c9027da9e25794`).\n\n| Field | Value |\n|-------|-------|\n| Version name | `0.2.9` |\n| Version code | `9` |\n| Commit | `9b9fb665f51aa0e24ed0c91782c9027da9e25794` |\n\n### Install packages\n\n| Platform | File | How to install |\n|----------|------|----------------|\n| **Android** | `*-android-release.apk` | Transfer to phone → open → allow install (debug-keystore; not Play Store) |\n| **Windows** | `*-windows-x64-setup.exe` | Run the setup wizard (unsigned — SmartScreen may warn) |\n| **macOS Apple Silicon** | `*-macos-arm64.dmg` | Open DMG → drag **Jot** to **Applications** |\n| **macOS Intel** | `*-macos-x64.dmg` | Same as above (x86_64) |\n\nPortable zips may also be attached for Windows / macOS.\n\nLinux / iOS packages are not produced by CI.\n\nSee [docs/branching-and-release.md](docs/branching-and-release.md).\n\n\n**Full Changelog**: https://github.com/AlexWuYh/Jot/compare/v0.2.8...v0.2.9",
+   "html_url": "https://github.com/AlexWuYh/Jot/releases/tag/v0.2.9"
+  },
+  {
+   "tag_name": "v0.2.8",
+   "name": "Jot v0.2.8",
+   "published_at": "2026-07-24T07:47:34Z",
+   "prerelease": false,
+   "body": "## Jot v0.2.8\n\nAuto-built from `main` (`2437f4f9e40d2d1b30eba3379299579426b158ab`).\n\n| Field | Value |\n|-------|-------|\n| Version name | `0.2.8` |\n| Version code | `8` |\n| Commit | `2437f4f9e40d2d1b30eba3379299579426b158ab` |\n\n### Artifacts\n\n- **Android** — `*-android.apk` (debug-keystore signed; replace for store)\n- **Windows** — `*-windows-x64.zip`\n- **macOS Apple Silicon** — `*-macos-arm64.zip`\n- **macOS Intel** — `*-macos-x64.zip` (x86_64)\n\nLinux / iOS packages are not produced by CI (local build only).\n\nSee [docs/branching-and-release.md](docs/branching-and-release.md).\n\n\n**Full Changelog**: https://github.com/AlexWuYh/Jot/commits/v0.2.8",
+   "html_url": "https://github.com/AlexWuYh/Jot/releases/tag/v0.2.8"
+  }
+ ]
+}

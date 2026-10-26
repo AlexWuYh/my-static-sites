@@ -8,7 +8,8 @@
     "desc": {
       "zh": "Android 全屏床头 / 桌面时钟",
       "en": "Fullscreen bedside / desk clock for Android"
-    }
+    },
+    "repo": "AlexWuYh/ScreenClock"
   },
   {
     "id": "dicomflow",
@@ -19,7 +20,8 @@
     "desc": {
       "zh": "CT / MRI 片子转 MP4 / GIF",
       "en": "Convert CT / MRI scans to MP4 / GIF"
-    }
+    },
+    "repo": "AlexWuYh/DicomFlow-App"
   },
   {
     "id": "jot",
@@ -30,6 +32,7 @@
     "desc": {
       "zh": "本地优先的碎片笔记，AI 周期总结",
       "en": "Local-first fragment notes with AI summaries"
-    }
+    },
+    "repo": "AlexWuYh/Jot"
   }
 ]

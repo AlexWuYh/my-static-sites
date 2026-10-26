@@ -1,0 +1,45 @@
+{
+ "repo": "AlexWuYh/DicomFlow-App",
+ "releases": [
+  {
+   "tag_name": "v1.0.4",
+   "name": "DicomFlow v1.0.4",
+   "published_at": "2026-09-04T08:50:58Z",
+   "prerelease": false,
+   "body": "**1.0.4**\n\nWindows 改为标准安装包（开始菜单、可卸载）。转换后的 MP4 可以在应用里预览，不再一直转圈。\n\nWindows now ships a standard installer. Converted MP4 files preview in the app instead of spinning forever.\n\n全程离线，不作诊断依据。 Offline. Not for diagnosis.\n\n| File | Notes |\n| --- | --- |\n| `*-android.apk` | Debug-signed; not for Play Store |\n| `*-macos.zip` | Ad-hoc `.app`; not notarized |\n| `*-windows-setup.exe` | Inno Setup installer; Start Menu + uninstall |\n",
+   "html_url": "https://github.com/AlexWuYh/DicomFLow-App/releases/tag/v1.0.4"
+  },
+  {
+   "tag_name": "v1.0.3",
+   "name": "DicomFlow v1.0.3",
+   "published_at": "2026-09-04T07:33:45Z",
+   "prerelease": false,
+   "body": "**1.0.3**\n\n说明改成「医院 CT / MRI 片子」，不再只写 DICOM。README 增加截图和可转换的片源（zip / rar / 7z、.dcm）。\n\nAbout copy now says hospital CT / MRI scans, not only DICOM. README adds a screenshot and lists what you can convert (zip / rar / 7z, .dcm).\n\n全程离线，不作诊断依据。 Offline. Not for diagnosis.\n\n| File | Notes |\n| --- | --- |\n| `*-android.apk` | Debug-signed; not for Play Store |\n| `*-macos.zip` | Ad-hoc `.app`; not notarized |\n| `*-windows.zip` | Portable folder, includes ffmpeg and 7-Zip |\n",
+   "html_url": "https://github.com/AlexWuYh/DicomFLow-App/releases/tag/v1.0.3"
+  },
+  {
+   "tag_name": "v1.0.2",
+   "name": "DicomFlow v1.0.2",
+   "published_at": "2026-09-04T03:26:07Z",
+   "prerelease": false,
+   "body": "**1.0.2**\n\n手机勾选「合并成一个文件」时，不再因为内存不足失败。各序列先单独编码，再拼成一个文件。\n\nMerging series into one file no longer runs out of memory on phones.\n\n全程离线，不作诊断依据。 Offline. Not for diagnosis.\n\n| File | Notes |\n| --- | --- |\n| `*-android.apk` | Debug-signed; not for Play Store |\n| `*-macos.zip` | Ad-hoc `.app`; not notarized |\n| `*-windows.zip` | Portable folder, includes ffmpeg and 7-Zip |\n",
+   "html_url": "https://github.com/AlexWuYh/DicomFLow-App/releases/tag/v1.0.2"
+  },
+  {
+   "tag_name": "v1.0.1",
+   "name": "DicomFlow v1.0.1",
+   "published_at": "2026-09-04T02:58:09Z",
+   "prerelease": false,
+   "body": "Convert hospital DICOM archives to MP4/GIF on this device. Offline. Not for diagnosis.\n\n医院 DICOM 压缩包本机转成 MP4/GIF。全程离线，不作诊断依据。\n\n| File | Notes |\n| --- | --- |\n| `DicomFlow-v1.0.1-android.apk` | Debug-signed; not for Play Store |\n| `DicomFlow-v1.0.1-macos.zip` | Ad-hoc signed `.app`; not notarized |\n| `DicomFlow-v1.0.1-windows.zip` | Portable Release folder, includes ffmpeg and 7-Zip |\n\n\n**Full Changelog**: https://github.com/AlexWuYh/DicomFLow-App/compare/v1.0.0...v1.0.1",
+   "html_url": "https://github.com/AlexWuYh/DicomFLow-App/releases/tag/v1.0.1"
+  },
+  {
+   "tag_name": "v1.0.0",
+   "name": "DicomFlow v1.0.0",
+   "published_at": "2026-09-04T02:22:33Z",
+   "prerelease": false,
+   "body": "First packaged build of DicomFlow App.\n\nConvert hospital DICOM archives to MP4/GIF on this device. Offline. Not for diagnosis.\n\n医院 DICOM 压缩包本机转成 MP4/GIF。全程离线，不作诊断依据。\n\n| File | Notes |\n| --- | --- |\n| `DicomFlow-v1.0.0-android.apk` | Debug-signed; not for Play Store |\n| `DicomFlow-v1.0.0-macos.zip` | Ad-hoc signed `.app`; not notarized |\n| `DicomFlow-v1.0.0-windows.zip` | Portable Release folder, includes ffmpeg and 7-Zip |\n\n\n**Full Changelog**: https://github.com/AlexWuYh/DicomFLow-App/commits/v1.0.0",
+   "html_url": "https://github.com/AlexWuYh/DicomFLow-App/releases/tag/v1.0.0"
+  }
+ ]
+}

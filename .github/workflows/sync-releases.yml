@@ -1,0 +1,30 @@
+name: sync-releases
+
+# 定期把各产品仓库的 GitHub Releases 抓成 <产品目录>/releases.json 快照并提交，
+# 让访问者连不上 GitHub 时页面仍有版本信息可显示。
+on:
+  schedule:
+    - cron: '17 */2 * * *'   # 每 2 小时
+  workflow_dispatch: {}       # 发版后可在 Actions 页手动触发
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/sync_releases_data.py
+      - name: Commit changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A '*/releases.json'
+            git commit -m "chore: sync releases snapshot"
+            git push
+          fi

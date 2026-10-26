@@ -23,6 +23,11 @@ if echo "$staged" | grep -qx 'products.json'; then
   touched=1
 fi
 
+if echo "$staged" | grep -qE '^(scripts/assets/releases\.js|products\.json)$'; then
+  python3 scripts/sync_releases_js.py >/dev/null || exit 1
+  touched=1
+fi
+
 if [ "$touched" = 1 ]; then
   after=$(git diff --name-only | sort)
   # 只暂存本钩子新产生的改动，不碰你其他未暂存的修改

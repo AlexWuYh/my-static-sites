@@ -63,7 +63,7 @@ PAIRS = [
       Want your images to never leave your device? Use the offline app.''', 1),
     ('        </svg>\n        打开网页版', '        </svg>\n        Open the web app', 1),
     ('        </svg>\n        下载 App', '        </svg>\n        Download the app', 1),
-    ('<p class="hero-note">便于沟通查阅，不作诊断依据</p>', '<p class="hero-note">For communication only, not for diagnosis</p>', 1),
+    ('便于沟通查阅，不作诊断依据</p>', 'For communication only, not for diagnosis</p>', 1),
     # ---- products ----
     ('<span class="section-label">Two ways to use</span>\n      <h2>网页版或 App，按需选择</h2>',
      '<span class="section-label">Two ways to use</span>\n      <h2>Web app or app — your choice</h2>', 1),

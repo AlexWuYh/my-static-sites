@@ -29,7 +29,9 @@ my-static-sites/
 3. 在上方「当前产品」表格中补充一行。
 4. 在根目录的 `products.json` 里加一项（名称、网址、中英文简介）。
 5. 在新产品页面的页脚放好友情链接标记（见下节），并复制 `.friends` 相关样式。
-6. 提交并推送。已有产品页面底部的友情链接会自动补上新产品。
+6. 在 `products.json` 的新条目里填 `repo`（`owner/repo`），页面 `</body>` 前加 `<script src="/releases.js" data-repo="owner/repo" defer></script>`，运行 `python3 scripts/sync_releases_js.py` 和 `python3 scripts/sync_releases_data.py`（见下文「版本号与更新日志」）。
+7. 提交并推送。已有产品页面底部的友情链接会自动补上新产品。
+8. 在 Cloudflare 新建对应的 Pages 项目，根目录指向该产品目录。
 
 ## 中英文页面（自动同步）
 
@@ -64,6 +66,19 @@ my-static-sites/
 - 同步脚本：`python3 scripts/sync_friend_links.py`。它会给每个产品的中文页和英文页写入“除自己外的其他产品”链接。
 - 自动同步：`pre-commit` 钩子在提交包含 `products.json` 或中文页时会自动运行，并把改动一并提交。
 - 新增产品：在 `products.json` 里加一项，并给新产品页面放好上面的标记；提交后，所有已有产品页面底部会自动出现新产品的链接。
+
+## 版本号与更新日志（取自 GitHub Releases）
+
+页面上的最新版本号和「更新日志」区块都由 `releases.js` 在浏览器里实时请求 GitHub Releases API 得到，**发版后不需要改网站代码**。
+
+- 源文件是 `scripts/assets/releases.js`，`python3 scripts/sync_releases_js.py` 会把它复制到各产品目录（`pre-commit` 钩子也会自动做）。**不要直接改产品目录里的副本**。
+- 页面里引入一行：`<script src="/releases.js" data-repo="owner/repo" defer></script>`，脚本会自动加上导航入口和 `#changelog` 区块。
+- 想显示最新版本号的地方写 `<span data-latest-version>v0.0.0</span>`，里面的文字是请求失败时的兜底。
+- 结果缓存在 sessionStorage 10 分钟，避免触发 GitHub 匿名 API 的限流（每 IP 每小时 60 次）。
+- 访问者连不上 GitHub 时的兜底：`.github/workflows/sync-releases.yml` 每 2 小时运行 `scripts/sync_releases_data.py`，把各仓库的 release 抓成 `<产品目录>/releases.json` 并提交（有变化才提交）。页面同时读这份同域快照和 GitHub API，快照先到先显示，API 成功后再刷新；API 超过 6 秒无响应就放弃。
+- 站点托管在 Cloudflare Pages，快照提交到 `main` 后会自动触发重新部署。发版后想立刻更新，可在 GitHub 的 Actions 页手动运行 `sync-releases`。
+- 新产品要在 `products.json` 里填 `repo`（`owner/repo`），快照和页面共用它。
+- Actions 会直接往 `main` 提交快照，本地推送被拒绝时先 `git pull --rebase` 再推。
 
 ## 本地预览
 
