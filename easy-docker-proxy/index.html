@@ -317,23 +317,65 @@
     .reveal { opacity: 1 !important; transform: none !important; }
   }
 
-  /* ---------- 代码块 / 表格头 / 截图图集 ---------- */
-  .code { position: relative; margin: 14px 0; }
-  .code pre {
-    background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px;
-    padding: 16px 18px; overflow-x: auto; color: var(--text);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: .82rem; line-height: 1.65; tab-size: 2;
+  /* ---------- 代码块（Mac 窗口风格 + 语法高亮） ---------- */
+  .code {
+    --code-bg: #0e1621; --code-bar: #172233; --code-fg: #d6e2f0;
+    margin: 14px 0; border-radius: 12px; overflow: hidden;
+    background: var(--code-bg); border: 1px solid #22344a;
+    box-shadow: 0 16px 36px -20px rgba(0, 0, 0, .55);
+  }
+  .code-bar {
+    display: flex; align-items: center; gap: 12px; height: 38px; padding: 0 12px 0 14px;
+    background: var(--code-bar); border-bottom: 1px solid rgba(255, 255, 255, .06);
+  }
+  .code-dots { display: flex; gap: 7px; flex: none; }
+  .code-dots i { display: block; width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
+  .code-dots i:nth-child(2) { background: #febc2e; }
+  .code-dots i:nth-child(3) { background: #28c840; }
+  .code-title {
+    flex: 1; min-width: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font: 600 .74rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: #8a9bb0;
   }
   .copy-btn {
-    position: absolute; top: 8px; right: 8px;
-    font-size: .72rem; font-weight: 600; color: var(--text-soft);
-    background: var(--surface); border: 1px solid var(--border-strong); border-radius: 8px;
-    padding: 3px 10px; cursor: pointer; opacity: 0; transition: opacity .2s, background .2s;
+    flex: none; font-size: .72rem; font-weight: 600; color: #9fb0c4;
+    background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .12); border-radius: 7px;
+    padding: 3px 10px; cursor: pointer; transition: background .2s, color .2s;
   }
-  .code:hover .copy-btn, .copy-btn:focus-visible { opacity: 1; }
-  .copy-btn:hover { background: var(--surface-2); color: var(--text); }
-  @media (hover: none) { .copy-btn { opacity: 1; } }
+  .copy-btn:hover { background: rgba(255, 255, 255, .13); color: #fff; }
+  .code pre {
+    margin: 0; padding: 16px 18px; overflow-x: auto; background: transparent; border: 0; color: var(--code-fg);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .82rem; line-height: 1.75; tab-size: 2;
+  }
+  .tk-cmt { color: #66798e; font-style: italic; }
+  .tk-str { color: #9ad47f; }
+  .tk-var { color: #e6c07b; }
+  .tk-cmd { color: #6cb4f5; font-weight: 600; }
+  .tk-flag { color: #56c2d0; }
+  .tk-op { color: #c586e0; }
+  .tk-num { color: #e0a169; }
+  .tk-key { color: #6cb4f5; }
+  .tk-kw { color: #e0a169; }
+
+  /* ---------- 部署步骤 ---------- */
+  .deploy-steps { list-style: none; counter-reset: d; margin: 0; padding: 0; }
+  .deploy-steps > li { counter-increment: d; position: relative; padding: 0 0 30px 54px; }
+  .deploy-steps > li:last-child { padding-bottom: 0; }
+  .deploy-steps > li::before {
+    content: counter(d); position: absolute; left: 0; top: 0;
+    width: 34px; height: 34px; display: grid; place-items: center;
+    border-radius: 50%; background: var(--grad); color: #fff; font-weight: 750; font-size: .95rem;
+  }
+  .deploy-steps > li::after {
+    content: ""; position: absolute; left: 16px; top: 42px; bottom: 8px; width: 2px; background: var(--border);
+  }
+  .deploy-steps > li:last-child::after { display: none; }
+  .deploy-steps h3 { font-size: 1.05rem; font-weight: 700; margin: 4px 0 6px; }
+  .deploy-steps p { color: var(--text-soft); font-size: .93rem; }
+  .deploy-steps .code { margin: 12px 0 0; }
+  @media (max-width: 820px) { .deploy-steps > li { padding-left: 46px; } }
+
+  /* ---------- 表格头 / 截图图集 ---------- */
   thead th { color: var(--muted); font-weight: 600; font-size: .82rem; white-space: nowrap; }
   td code { word-break: break-all; }
   .card p + .code, .card .code + p { margin-top: 10px; }
@@ -584,10 +626,10 @@
       <div class="card reveal">
         <h3 style="margin-top:0">Docker Hub：registry-mirrors</h3>
         <p>镜像名完全不用改。把下面的 JSON 写进 <code>/etc/docker/daemon.json</code>：</p>
-        <div class="code"><pre>{
+        <div class="code" data-lang="json" data-title="/etc/docker/daemon.json"><pre>{
   "registry-mirrors": ["https://reg.example.com"]
 }</pre></div>
-        <div class="code"><pre>systemctl restart docker   # Linux
+        <div class="code" data-lang="bash" data-title="Terminal"><pre>systemctl restart docker   # Linux
 docker pull nginx:alpine</pre></div>
         <p>如果入口是纯 HTTP，还需要把它加进 <code>insecure-registries</code>。</p>
       </div>
@@ -595,7 +637,7 @@ docker pull nginx:alpine</pre></div>
       <div class="card reveal" style="--d:90ms">
         <h3 style="margin-top:0">其他上游：路径前缀</h3>
         <p>在同一个域名后面加上上游的前缀：</p>
-        <div class="code"><pre>docker pull reg.example.com/ghcr.io/owner/app:tag
+        <div class="code" data-lang="bash" data-title="Terminal"><pre>docker pull reg.example.com/ghcr.io/owner/app:tag
 docker pull reg.example.com/quay.io/prometheus/prometheus:latest
 docker pull reg.example.com/registry.k8s.io/pause:3.9</pre></div>
         <p>代理按前缀选择上游，并在请求真实仓库前去掉前缀。</p>
@@ -616,23 +658,51 @@ docker pull reg.example.com/registry.k8s.io/pause:3.9</pre></div>
     </div>
 
     <div class="card reveal">
-      <div class="code"><pre>git clone https://github.com/AlexWuYh/easy-docker-proxy.git
-cd easy-docker-proxy
+      <ol class="deploy-steps">
+        <li>
+          <h3>获取代码</h3>
+          <p>克隆仓库并进入目录，后面的命令都在这个目录里执行。</p>
+          <div class="code" data-lang="bash" data-title="Terminal"><pre>git clone https://github.com/AlexWuYh/easy-docker-proxy.git
+cd easy-docker-proxy</pre></div>
+        </li>
+        <li>
+          <h3>准备环境变量</h3>
+          <p>复制模板，再生成随机的管理令牌和统计页密码写入 <code>.env</code>。统计页账号默认是 <code>admin</code>，密码就是 <code>PROXY_WEB_PASSWORD</code>。</p>
+          <div class="code" data-lang="bash" data-title="Terminal"><pre>cp .env.example .env
 
-cp .env.example .env
+# 生成随机的管理令牌和统计页密码
 EDP_ADMIN_TOKEN="$(openssl rand -hex 32)"
 EDP_WEB_PASSWORD="$(openssl rand -base64 24 | tr -d '\n')"
+
+# 写入 .env
 sed -i.bak -e "s|^PROXY_ADMIN_TOKEN=.*|PROXY_ADMIN_TOKEN=$EDP_ADMIN_TOKEN|" \
   -e "s|^PROXY_WEB_PASSWORD=.*|PROXY_WEB_PASSWORD=$EDP_WEB_PASSWORD|" .env
 rm -f .env.bak
-unset EDP_ADMIN_TOKEN EDP_WEB_PASSWORD
 
-cp configs/config.docker.yaml configs/config.yaml
-# 把 hosts 里的 reg.example.com 换成你的真实域名
+# 清掉当前终端里的明文变量
+unset EDP_ADMIN_TOKEN EDP_WEB_PASSWORD</pre></div>
+        </li>
+        <li>
+          <h3>填入你的域名</h3>
+          <p>复制业务配置，再把 dockerhub 的 <code>hosts</code> 改成你自己的域名（不要带 <code>https://</code>）。</p>
+          <div class="code" data-lang="bash" data-title="Terminal"><pre>cp configs/config.docker.yaml configs/config.yaml</pre></div>
+          <div class="code" data-lang="yaml" data-title="configs/config.yaml"><pre>registries:
+  - name: dockerhub
+    hosts:
+      - "reg.example.com"   # ← 换成你的真实域名
+    path_prefixes:
+      - "docker.io"</pre></div>
+        </li>
+        <li>
+          <h3>启动</h3>
+          <p>在仓库根目录执行，第一次会先构建镜像。</p>
+          <div class="code" data-lang="bash" data-title="Terminal"><pre>docker compose --env-file .env -f deploy/docker-compose.yaml up -d --build</pre></div>
+        </li>
+      </ol>
+    </div>
 
-docker compose --env-file .env -f deploy/docker-compose.yaml up -d --build</pre></div>
-
-      <table style="margin-top: 18px;">
+    <div class="card reveal" style="margin-top: 16px; padding: 8px 12px;">
+      <table>
         <tbody>
           <tr><th>数据面</th><td>默认只在主机 <code>127.0.0.1:5000</code> 监听，通过 TLS 反代对外发布</td></tr>
           <tr><th>管理面</th><td><code>:5001</code>，默认不对公网开放</td></tr>
@@ -742,23 +812,109 @@ docker compose --env-file .env -f deploy/docker-compose.yaml up -d --build</pre>
     applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark', true);
   });
 
-  // 代码块复制按钮
+  // 代码块：Mac 窗口外观 + 语法高亮 + 复制按钮（高亮用内置的轻量规则，不依赖外部库）
+  function esc(t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function sp(c, t) { return '<span class="tk-' + c + '">' + esc(t) + '</span>'; }
+  var VAR = /(\$\{[^}]*\}|\$\([^)]*\)|\$[A-Za-z_]\w*)/;
+
+  // 找行内注释：不在引号里，且 # 在行首或空白之后
+  function commentAt(line) {
+    var q = null;
+    for (var i = 0; i < line.length; i++) {
+      var c = line.charAt(i);
+      if (q) { if (c === '\\' && q === '"') i++; else if (c === q) q = null; }
+      else if (c === '"' || c === "'") q = c;
+      else if (c === '#' && (i === 0 || /\s/.test(line.charAt(i - 1)))) return i;
+    }
+    return -1;
+  }
+  function str(t) {
+    return '<span class="tk-str">' + t.split(VAR).map(function (p, i) {
+      return i % 2 ? '</span>' + sp('var', p) + '<span class="tk-str">' : esc(p);
+    }).join('') + '</span>';
+  }
+
+  function hlBash(text) {
+    var cont = false;
+    return text.split('\n').map(function (line) {
+      var ci = commentAt(line), code = ci < 0 ? line : line.slice(0, ci), cm = ci < 0 ? '' : sp('cmt', line.slice(ci));
+      var expectCmd = !cont, out = '', m;
+      var re = /("(?:\\.|[^"\\])*"|'[^']*')|(\$\{[^}]*\}|\$\([^)]*\)|\$[A-Za-z_]\w*)|(&&|\|\||[|;>])|(\\$)|(-{1,2}[A-Za-z][\w.-]*)|([^\s"'$|&;>\\]+)|(\s+)|([\s\S])/g;
+      while ((m = re.exec(code))) {
+        if (m[1]) out += str(m[1]);
+        else if (m[2]) out += sp('var', m[2]);
+        else if (m[3]) { out += sp('op', m[3]); expectCmd = m[3] !== '>'; }
+        else if (m[4]) out += sp('op', m[4]);
+        else if (m[5]) out += sp('flag', m[5]);
+        else if (m[6]) {
+          if (/^[A-Z_][A-Z0-9_]*=$/.test(m[6])) out += sp('var', m[6]);
+          else if (expectCmd) { out += sp('cmd', m[6]); expectCmd = false; }
+          else if (/^\d+(\.\d+)*$/.test(m[6])) out += sp('num', m[6]);
+          else out += esc(m[6]);
+        } else out += esc(m[0]);
+      }
+      cont = /\\\s*$/.test(code);
+      return out + cm;
+    }).join('\n');
+  }
+
+  function hlJson(text) {
+    return text.replace(/("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?|([{}\[\],:])|([\s\S])/g,
+      function (m, s, colon, kw, p, other) {
+        if (s) return colon ? sp('key', s) + esc(colon) : sp('str', s);
+        if (kw) return sp('kw', kw);
+        if (p) return esc(p);
+        if (other) return esc(other);
+        return sp('num', m);
+      });
+  }
+
+  function hlYamlValue(v) {
+    return v.replace(/("(?:\\.|[^"\\])*"|'[^']*')|\b(true|false|null)\b|(\b\d+\b)|([\s\S])/g,
+      function (m, s, kw, n, other) {
+        if (s) return sp('str', s);
+        if (kw) return sp('kw', kw);
+        if (n) return sp('num', n);
+        return esc(other);
+      });
+  }
+  function hlYaml(text) {
+    return text.split('\n').map(function (line) {
+      var ci = commentAt(line), code = ci < 0 ? line : line.slice(0, ci), cm = ci < 0 ? '' : sp('cmt', line.slice(ci));
+      var m = /^(\s*(?:-\s+)?)([A-Za-z_][\w.-]*)(:)(.*)$/.exec(code);
+      if (m) return esc(m[1]) + sp('key', m[2]) + esc(m[3]) + hlYamlValue(m[4]) + cm;
+      m = /^(\s*-\s+)(.*)$/.exec(code);
+      if (m) return esc(m[1]) + hlYamlValue(m[2]) + cm;
+      return esc(code) + cm;
+    }).join('\n');
+  }
+
+  var HL = { bash: hlBash, json: hlJson, yaml: hlYaml };
   [].forEach.call(document.querySelectorAll('.code'), function (box) {
+    var pre = box.querySelector('pre');
+    var raw = pre.textContent.replace(/\n$/, '');
+    var fn = HL[box.getAttribute('data-lang')];
+    if (fn) pre.innerHTML = fn(raw);
+
+    var bar = document.createElement('div');
+    bar.className = 'code-bar';
+    bar.innerHTML = '<span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>' +
+      '<span class="code-title">' + esc(box.getAttribute('data-title') || '') + '</span>';
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'copy-btn';
     btn.textContent = en ? 'Copy' : '复制';
     btn.addEventListener('click', function () {
-      var text = box.querySelector('pre').innerText;
       var done = function () {
         btn.textContent = en ? 'Copied' : '已复制';
         setTimeout(function () { btn.textContent = en ? 'Copy' : '复制'; }, 1600);
       };
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done, function () {});
+        navigator.clipboard.writeText(raw).then(done, function () {});
       }
     });
-    box.appendChild(btn);
+    bar.appendChild(btn);
+    box.insertBefore(bar, pre);
   });
 
   var reveals = document.querySelectorAll('.reveal');
