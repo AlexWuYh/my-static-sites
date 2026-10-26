@@ -24,13 +24,13 @@
     desc: 'Release notes are loaded live from GitHub Releases.',
     loading: 'Loading…', failed: 'Could not load release notes.', retry: 'Open on GitHub',
     empty: 'No release notes yet.', latest: 'Latest', pre: 'Pre-release',
-    noNotes: 'No release notes.', all: 'All releases on GitHub'
+    noNotes: 'No release notes.', ver: 'Latest', all: 'All releases on GitHub'
   } : {
     nav: '更新日志', label: 'Changelog', title: '更新日志',
     desc: '内容实时取自 GitHub Releases。',
     loading: '加载中…', failed: '更新日志加载失败。', retry: '去 GitHub 查看',
     empty: '暂无发布记录。', latest: '最新', pre: '预发布',
-    noNotes: '这个版本没有填写说明。', all: '在 GitHub 查看全部版本'
+    noNotes: '这个版本没有填写说明。', ver: '最新版', all: '在 GitHub 查看全部版本'
   };
 
   var releasesUrl = 'https://github.com/' + repo + '/releases';
@@ -158,6 +158,7 @@
   // ---- 1. 最新版本号 ----
   var tags = document.querySelectorAll('[data-latest-version]');
   if (tags.length) {
+    for (var k = 0; k < tags.length; k++) tags[k].setAttribute('data-label', T.ver);
     subscribe(function (list) {
       var latest = list.filter(function (r) { return !r.prerelease; })[0] || list[0];
       if (!latest) return;
@@ -174,6 +175,10 @@
   style.textContent =
     '.ver-badge{display:inline-block;margin-right:6px;padding:2px 11px;border-radius:99px;font-size:.92rem;font-weight:700;letter-spacing:.2px;' +
     'color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);text-decoration:none;vertical-align:baseline;transition:background .2s,color .2s}' +
+    '.ver-badge[data-label]::before{content:attr(data-label);margin-right:8px;padding-right:8px;border-right:1px solid currentColor;font-weight:600;font-size:.82em;opacity:.9}' +
+    '.ver-badge::after{content:"";display:inline-block;width:6px;height:6px;margin-left:7px;border-radius:50%;background:currentColor;vertical-align:middle;position:relative;top:-1px;animation:ver-pulse 2s ease-in-out infinite}' +
+    '@keyframes ver-pulse{50%{opacity:.35}}' +
+    '@media (prefers-reduced-motion:reduce){.ver-badge::after{animation:none}}' +
     '.ver-badge:hover{background:var(--accent);color:var(--accent-ink)}' +
     '.ver-badge[hidden]{display:none}' +
     '.cl-list{margin-top:28px;display:grid;gap:14px}' +
