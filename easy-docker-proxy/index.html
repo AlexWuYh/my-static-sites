@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>easy-docker-proxy — 多上游 Docker 镜像加速代理 · 零镜像缓存 · 拉取统计 · 开源免费</title>
+<meta name="description" content="easy-docker-proxy（EDP）是一个轻量的多上游 Docker Registry 加速代理：流式转发、不缓存镜像层，一个自有域名同时加速 Docker Hub、GHCR、Quay、registry.k8s.io 等，内置拉取统计控制台。开源免费，Docker Compose 一键部署。">
+<meta name="keywords" content="Docker 镜像加速, Docker 镜像代理, Registry 代理, registry-mirrors, Docker Hub 加速, ghcr 加速, 自建镜像加速, 拉取统计, easy-docker-proxy, EDP">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://edp.wuewa.cn/">
+<link rel="alternate" hreflang="zh-CN" href="https://edp.wuewa.cn/">
+<link rel="alternate" hreflang="en" href="https://edp.wuewa.cn/en/">
+<link rel="alternate" hreflang="x-default" href="https://edp.wuewa.cn/">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<link rel="icon" type="image/png" href="/app-icon.png">
+<link rel="apple-touch-icon" href="/app-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="easy-docker-proxy">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:url" content="https://edp.wuewa.cn/">
+<meta property="og:title" content="easy-docker-proxy — 一个域名，加速所有 Docker 镜像仓库">
+<meta property="og:description" content="轻量的多上游 Docker Registry 加速代理：流式转发、零镜像缓存、内置拉取统计。开源免费。">
+<meta property="og:image" content="https://edp.wuewa.cn/stats-dashboard.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="easy-docker-proxy — 一个域名，加速所有 Docker 镜像仓库">
+<meta name="twitter:description" content="多上游 Docker Registry 加速代理，零镜像缓存，内置拉取统计。开源免费。">
+<meta name="twitter:image" content="https://edp.wuewa.cn/stats-dashboard.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "easy-docker-proxy",
+  "alternateName": "EDP",
+  "description": "轻量的多上游 Docker Registry 加速代理，流式转发、不缓存镜像层，内置拉取统计控制台。",
+  "url": "https://edp.wuewa.cn/",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Linux, Docker",
+  "inLanguage": ["zh-CN", "en"],
+  "image": "https://edp.wuewa.cn/app-icon.png",
+  "downloadUrl": "https://github.com/AlexWuYh/easy-docker-proxy",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" },
+  "license": "https://opensource.org/licenses/MIT",
+  "sameAs": ["https://github.com/AlexWuYh/easy-docker-proxy"]
+}
+</script>
+<script>
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('edp-theme'); } catch (e) {}
+    if (!t) {
+      t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --container: 1040px;
+    --radius: 18px;
+    --ease: cubic-bezier(.22, .61, .36, 1);
+    --grad: linear-gradient(135deg, #2563eb 0%, #f97316 130%);
+  }
+
+  html[data-theme="light"] {
+    --bg: #f4f8fb;
+    --surface: #ffffff;
+    --surface-2: #ebf2f7;
+    --border: #dde8f0;
+    --border-strong: #c8d8e5;
+    --text: #0c1a26;
+    --text-soft: #34495c;
+    --muted: #64798c;
+    --accent: #0a7ea4;
+    --accent-ink: #ffffff;
+    --accent-soft: rgba(10, 126, 164, .09);
+    --glow: rgba(37, 99, 235, .15);
+    --warn-bg: #fff7ed;
+    --warn-border: #fed7aa;
+    --warn-text: #9a4a0b;
+    --nav-bg: rgba(244, 248, 251, .8);
+    --shadow: 0 30px 70px -34px rgba(20, 70, 110, .45);
+  }
+
+  html[data-theme="dark"] {
+    --bg: #090f16;
+    --surface: #101a25;
+    --surface-2: #162331;
+    --border: #1f3042;
+    --border-strong: #2d4560;
+    --text: #e6eef6;
+    --text-soft: #b0c1d1;
+    --muted: #7d92a6;
+    --accent: #38bdf8;
+    --accent-ink: #04131c;
+    --accent-soft: rgba(56, 189, 248, .13);
+    --glow: rgba(56, 189, 248, .14);
+    --warn-bg: rgba(249, 115, 22, .09);
+    --warn-border: rgba(249, 115, 22, .3);
+    --warn-text: #fdba74;
+    --nav-bg: rgba(9, 15, 22, .76);
+    --shadow: 0 30px 70px -30px rgba(0, 0, 0, .9);
+  }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    transition: background .25s var(--ease), color .25s var(--ease);
+  }
+  svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  a { color: var(--accent); }
+  .container { width: min(var(--container), 100% - 32px); margin-inline: auto; }
+
+  /* ---------- 导航 ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--nav-bg);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s;
+  }
+  .nav.scrolled { border-bottom-color: var(--border); }
+  .nav-inner { height: 60px; display: flex; align-items: center; justify-content: space-between; }
+  .brand {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-size: .98rem; font-weight: 700; letter-spacing: -.01em;
+    color: var(--text); text-decoration: none;
+  }
+  .brand img { width: 30px; height: 30px; border-radius: 9px; }
+  .nav-actions { display: flex; align-items: center; gap: 8px; }
+  .nav-link {
+    font-size: .88rem; color: var(--text-soft); text-decoration: none;
+    padding: 6px 11px; border-radius: 8px;
+  }
+  .nav-link:hover { color: var(--text); background: var(--surface-2); }
+  .lang-link {
+    font-size: .8rem; font-weight: 650; color: var(--text-soft); text-decoration: none;
+    padding: 6px 9px; border: 1px solid var(--border-strong); border-radius: 8px;
+  }
+  .lang-link:hover { color: var(--text); background: var(--surface-2); }
+  .icon-btn {
+    width: 36px; height: 36px; display: grid; place-items: center;
+    border-radius: 10px; border: 1px solid var(--border-strong);
+    background: transparent; color: var(--text-soft); cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+  .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+  .icon-btn svg { width: 18px; height: 18px; }
+  .icon-btn svg.gh { fill: currentColor; stroke: none; }
+  html[data-theme="light"] .icon-sun, html[data-theme="dark"] .icon-moon { display: none; }
+
+  /* ---------- 首屏 ---------- */
+  .hero { position: relative; overflow: hidden; padding: 72px 0 56px; text-align: center; }
+  .hero::before {
+    content: ""; position: absolute; inset: -120px 0 auto; height: 540px; z-index: -1;
+    background: radial-gradient(60% 60% at 50% 0%, var(--glow), transparent 70%);
+  }
+  .hero-icon { width: 84px; height: 84px; border-radius: 22px; box-shadow: var(--shadow); }
+  .pill {
+    display: inline-block; margin: 22px 0 16px;
+    font-size: .8rem; color: var(--text-soft);
+    padding: 5px 13px; border: 1px solid var(--border-strong); border-radius: 999px;
+    background: var(--surface);
+  }
+  .pill b { color: var(--accent); font-weight: 650; }
+  h1 { font-size: clamp(2.3rem, 6vw, 3.6rem); line-height: 1.12; letter-spacing: -.03em; font-weight: 800; }
+  h1 small { font-size: .5em; font-weight: 650; color: var(--muted); letter-spacing: 0; margin-left: .15em; }
+  .tagline { margin: 18px auto 0; max-width: 680px; font-size: clamp(1.1rem, 2.6vw, 1.4rem); color: var(--text-soft); text-wrap: balance; }
+  .tagline strong { color: var(--accent); font-weight: 700; }
+  .desc { margin: 12px auto 0; max-width: 700px; text-wrap: balance; color: var(--muted); font-size: .98rem; }
+  .hero-actions { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    font-size: .98rem; font-weight: 650; text-decoration: none;
+    padding: 13px 24px; border-radius: 13px;
+    transition: transform .2s var(--ease), box-shadow .2s var(--ease), background .2s;
+  }
+  .btn svg { width: 19px; height: 19px; stroke-width: 2.2; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: 0 10px 28px -10px var(--accent); }
+  .btn-primary:hover { transform: translateY(-2px); }
+  .btn-ghost { color: var(--text); border: 1px solid var(--border-strong); background: var(--surface); }
+  .btn-ghost:hover { transform: translateY(-2px); background: var(--surface-2); }
+  .btn-sm { font-size: .88rem; padding: 10px 16px; border-radius: 11px; }
+  .hero-note { margin-top: 18px; font-size: .82rem; color: var(--muted); }
+
+  .shot {
+    margin: 48px auto 0; max-width: 900px;
+    border-radius: var(--radius); overflow: hidden;
+    border: 1px solid var(--border); box-shadow: var(--shadow); background: var(--surface);
+  }
+  .shot img { display: block; width: 100%; height: auto; }
+  .shot-cap { margin-top: 14px; font-size: .85rem; color: var(--muted); }
+
+  /* ---------- 通用区块 ---------- */
+  .section { padding: 68px 0; }
+  .section-head { text-align: center; max-width: 660px; margin: 0 auto 40px; }
+  .section-label {
+    display: inline-block; font-size: .76rem; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 10px;
+  }
+  h2 { font-size: clamp(1.6rem, 3.6vw, 2.2rem); line-height: 1.25; letter-spacing: -.02em; font-weight: 750; }
+  .section-desc { margin-top: 12px; color: var(--muted); }
+
+  .grid { display: grid; gap: 16px; }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 26px;
+    transition: transform .25s var(--ease), border-color .25s;
+  }
+  .card:hover { transform: translateY(-3px); border-color: var(--border-strong); }
+  .card h3 { font-size: 1.05rem; margin: 14px 0 8px; font-weight: 700; }
+  .card p { color: var(--text-soft); font-size: .93rem; }
+  .card-icon {
+    width: 42px; height: 42px; display: grid; place-items: center;
+    border-radius: 12px; background: var(--accent-soft); color: var(--accent);
+  }
+  .card-icon svg { width: 21px; height: 21px; }
+
+  .steps { counter-reset: s; }
+  .step::before {
+    counter-increment: s; content: counter(s);
+    width: 34px; height: 34px; display: grid; place-items: center;
+    border-radius: 50%; background: var(--grad); color: #fff;
+    font-weight: 750; font-size: .95rem;
+  }
+  .note {
+    margin-top: 22px; padding: 16px 20px; border-radius: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text-soft); font-size: .92rem;
+  }
+  .note b { color: var(--text); }
+
+  .tag {
+    display: inline-block; font-size: .72rem; font-weight: 650; color: var(--accent);
+    background: var(--accent-soft); padding: 2px 9px; border-radius: 999px; margin-left: 6px;
+    vertical-align: middle;
+  }
+  .file { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .8rem; color: var(--muted); word-break: break-all; margin-bottom: 6px; }
+  .dl-card { display: flex; flex-direction: column; }
+  .dl-card .btn { margin-top: auto; }
+  .dl-card p { margin-bottom: 14px; }
+  .dl-card .files { margin-bottom: 18px; }
+
+  .list { list-style: none; display: grid; gap: 10px; }
+  .list li { display: flex; gap: 10px; color: var(--text-soft); font-size: .94rem; }
+  .list li::before { content: "✓"; color: var(--accent); font-weight: 800; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 13px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody th { width: 20%; color: var(--muted); font-weight: 600; }
+  td { color: var(--text-soft); }
+  tr:last-child th, tr:last-child td { border-bottom: 0; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .86em; background: var(--surface-2); padding: 2px 6px; border-radius: 6px; }
+  kbd {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .82em;
+    background: var(--surface-2); border: 1px solid var(--border-strong); border-bottom-width: 2px;
+    padding: 1px 6px; border-radius: 6px; color: var(--text);
+  }
+
+  .callout {
+    padding: 16px 20px; border-radius: 14px;
+    background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-text);
+    font-size: .92rem;
+  }
+
+  /* CTA & 页脚 */
+  .cta { text-align: center; padding: 72px 0 80px; }
+  .cta p { margin: 12px 0 28px; color: var(--muted); }
+  footer { border-top: 1px solid var(--border); padding: 20px 0 22px; text-align: center; color: var(--muted); font-size: .85rem; }
+  footer p + p { margin-top: 4px; font-size: .76rem; line-height: 1.55; }
+  footer a { color: var(--text-soft); }
+
+  .footer-meta {
+    margin-top: 12px;
+    display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+    gap: 8px 22px;
+  }
+  .author-wrap { margin: 0; }
+  .author-link {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 3px 12px 3px 3px;
+    border: 1px solid var(--border-strong); border-radius: 999px;
+    color: var(--text-soft); text-decoration: none;
+    transition: color .2s, background .2s, border-color .2s;
+  }
+  .author-link:hover { color: var(--text); background: var(--surface-2); }
+  .author-link img { width: 24px; height: 24px; border-radius: 50%; display: block; }
+  .author-link b { color: var(--text); font-weight: 650; }
+  .friends {
+    margin: 0;
+    display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+    gap: 4px 14px; font-size: .82rem;
+  }
+  .friends-label { color: var(--muted); }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s var(--ease), transform .6s var(--ease); transition-delay: var(--d, 0ms); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 820px) {
+    .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    .nav-link { display: none; }
+    .section { padding: 52px 0; }
+    .hero { padding: 52px 0 36px; }
+    .cta { padding: 56px 0 64px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+    .reveal { opacity: 1 !important; transform: none !important; }
+  }
+
+  /* ---------- 代码块 / 表格头 / 截图图集 ---------- */
+  .code { position: relative; margin: 14px 0; }
+  .code pre {
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; overflow-x: auto; color: var(--text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .82rem; line-height: 1.65; tab-size: 2;
+  }
+  .copy-btn {
+    position: absolute; top: 8px; right: 8px;
+    font-size: .72rem; font-weight: 600; color: var(--text-soft);
+    background: var(--surface); border: 1px solid var(--border-strong); border-radius: 8px;
+    padding: 3px 10px; cursor: pointer; opacity: 0; transition: opacity .2s, background .2s;
+  }
+  .code:hover .copy-btn, .copy-btn:focus-visible { opacity: 1; }
+  .copy-btn:hover { background: var(--surface-2); color: var(--text); }
+  @media (hover: none) { .copy-btn { opacity: 1; } }
+  thead th { color: var(--muted); font-weight: 600; font-size: .82rem; white-space: nowrap; }
+  td code { word-break: break-all; }
+  .card p + .code, .card .code + p { margin-top: 10px; }
+  figure { margin: 0; }
+  figure .shot { display: block; margin: 0; max-width: none; }
+  figure .shot-cap { text-align: center; }
+  .card ul + p, .card p + p { margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<!-- ==================== NAV ==================== -->
+<nav class="nav" id="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="#top">
+      <img src="/app-icon.png" alt="easy-docker-proxy 应用图标" width="30" height="30">
+      easy-docker-proxy
+    </a>
+    <div class="nav-actions">
+      <a class="nav-link" href="#features">功能</a>
+      <a class="nav-link" href="#upstreams">上游</a>
+      <a class="nav-link" href="#deploy">部署</a>
+      <a class="lang-link" href="/en/" hreflang="en" lang="en" title="English">EN</a>
+      <a class="icon-btn" href="https://github.com/AlexWuYh/easy-docker-proxy" target="_blank" rel="noopener noreferrer"
+         aria-label="打开 easy-docker-proxy GitHub 仓库" title="GitHub 仓库">
+        <svg class="gh" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </a>
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="切换明暗主题">
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<header class="hero" id="top">
+  <div class="container">
+    <img class="hero-icon" src="/app-icon.png" alt="easy-docker-proxy 应用图标" width="84" height="84">
+    <div><span class="pill"><b>开源</b> · 零镜像缓存 · 自托管 · Docker 部署</span></div>
+
+    <h1>easy-docker-proxy<small>EDP</small></h1>
+    <p class="tagline">多上游 Docker 镜像<strong>加速代理</strong>，一个域名全搞定。</p>
+    <p class="desc">
+      流式转发，不缓存镜像层，也不碰 Docker socket。
+      Docker Hub 保持原镜像名，其他仓库用域名路径前缀，还自带一个拉取统计控制台。
+    </p>
+
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#deploy">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <polyline points="4 17 10 11 4 5"/>
+          <line x1="12" y1="19" x2="20" y2="19"/>
+        </svg>
+        快速部署
+      </a>
+      <a class="btn btn-ghost" href="https://github.com/AlexWuYh/easy-docker-proxy" target="_blank" rel="noopener noreferrer">查看源码</a>
+    </div>
+    <p class="hero-note"><a class="ver-badge" href="#changelog" data-latest-version hidden></a> MIT 开源 · 数据面与管理面分离</p>
+
+    <div class="shot">
+      <img src="/stats-dashboard.jpg" alt="EDP 统计控制台分析看板：拉取趋势、上游占比、错误率和活跃客户端" width="1600" height="1029" fetchpriority="high">
+    </div>
+    <p class="shot-cap">统计控制台（演示数据）：拉取趋势、上游占比和错误率一目了然。</p>
+  </div>
+</header>
+
+<!-- ==================== 这是什么 ==================== -->
+<section class="section" id="about">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">What it is</span>
+      <h2>一个轻量的 Registry 加速代理</h2>
+      <p class="section-desc">只做一件事：把拉取请求转发给对应的上游仓库，不囤镜像，也不管容器。</p>
+    </div>
+
+    <div class="card reveal" style="padding: 8px 12px;">
+      <table>
+        <tbody>
+          <tr><th>定位</th><td>多上游 Docker Registry 加速代理，自己的服务器、自己的域名</td></tr>
+          <tr><th>缓存</th><td>不缓存镜像层，流式转发；磁盘里只有 SQLite 元数据（拉取记录）</td></tr>
+          <tr><th>入口</th><td>一个域名：Docker Hub 走 <code>registry-mirrors</code>，其他上游用路径前缀</td></tr>
+          <tr><th>管理</th><td>内置统计网页；没有 Docker socket，也没有容器管理</td></tr>
+          <tr><th>技术</th><td>Go 编写，Docker Compose 部署，MIT 开源</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 功能 ==================== -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Features</span>
+      <h2>轻、省心、看得见</h2>
+    </div>
+
+    <div class="grid grid-3">
+      <article class="card reveal" style="--d:0ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>
+        </div>
+        <h3>流式转发，零层缓存</h3>
+        <p>镜像层边下边转，不落盘，不必为缓存预留磁盘空间。</p>
+      </article>
+
+      <article class="card reveal" style="--d:90ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <h3>一个域名，多个上游</h3>
+        <p>Docker Hub 通过 <code>registry-mirrors</code> 保持原镜像名；<code>ghcr.io</code>、<code>quay.io</code> 等在域名后加路径前缀。</p>
+      </article>
+
+      <article class="card reveal" style="--d:180ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </div>
+        <h3>九类上游开箱即用</h3>
+        <p>Docker Hub、GHCR、Quay、GCR、registry.k8s.io、MCR、NVCR、Elastic、公共 ECR，可以关闭，也能自己加。</p>
+      </article>
+
+      <article class="card reveal" style="--d:0ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <h3>拉取统计控制台</h3>
+        <p>分析看板、上游仓库分析、镜像列表和事件记录，支持亮色与暗色主题。</p>
+      </article>
+
+      <article class="card reveal" style="--d:90ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        </div>
+        <h3>上游凭据可选</h3>
+        <p>默认匿名拉取公开镜像；填上各上游的用户名和令牌，就能拉私有镜像，或避开 Docker Hub 的限流。</p>
+      </article>
+
+      <article class="card reveal" style="--d:180ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>客户端登录鉴权</h3>
+        <p>可以开启 <code>pull_auth</code>，只有 <code>docker login</code> 过本代理的客户端才能拉取，避免被陌生人蹭用。</p>
+      </article>
+
+      <article class="card reveal" style="--d:0ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>数据面与管理面分离</h3>
+        <p>数据面默认只监听 <code>127.0.0.1:5000</code>，由 TLS 反代对外发布；管理面 <code>:5001</code> 默认不对公网开放。</p>
+      </article>
+
+      <article class="card reveal" style="--d:90ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg>
+        </div>
+        <h3>不碰 Docker socket</h3>
+        <p>不挂载 <code>docker.sock</code>，也不管理任何容器，权限边界一目了然。</p>
+      </article>
+
+      <article class="card reveal" style="--d:180ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+        </div>
+        <h3>免费开源</h3>
+        <p>以 MIT 协议开源，中英文 README、安装指南和排障文档都在 GitHub 上。</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 支持的上游 ==================== -->
+<section class="section" id="upstreams">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Upstreams</span>
+      <h2>支持的上游仓库</h2>
+      <p class="section-desc">在域名后面加上对应的路径前缀，代理会据此选择上游，并在转发前去掉前缀。</p>
+    </div>
+
+    <div class="card reveal" style="padding: 8px 12px; overflow-x: auto;">
+      <table>
+        <thead>
+          <tr><th>上游</th><th>路径前缀</th><th>拉取示例</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Docker Hub</td><td><code>docker.io</code>，另可用 mirrors（无前缀）</td><td><code>docker pull nginx</code></td></tr>
+          <tr><td>GHCR</td><td><code>ghcr.io</code></td><td><code>docker pull reg.example.com/ghcr.io/owner/app:tag</code></td></tr>
+          <tr><td>Quay.io</td><td><code>quay.io</code></td><td><code>docker pull reg.example.com/quay.io/org/img:tag</code></td></tr>
+          <tr><td>GCR</td><td><code>gcr.io</code></td><td><code>docker pull reg.example.com/gcr.io/project/img:tag</code></td></tr>
+          <tr><td>Kubernetes</td><td><code>registry.k8s.io</code>、<code>k8s.gcr.io</code></td><td><code>docker pull reg.example.com/registry.k8s.io/pause:3.9</code></td></tr>
+          <tr><td>Microsoft MCR</td><td><code>mcr.microsoft.com</code></td><td><code>docker pull reg.example.com/mcr.microsoft.com/...</code></td></tr>
+          <tr><td>NVIDIA NGC</td><td><code>nvcr.io</code></td><td><code>docker pull reg.example.com/nvcr.io/...</code></td></tr>
+          <tr><td>Elastic</td><td><code>docker.elastic.co</code></td><td><code>docker pull reg.example.com/docker.elastic.co/...</code></td></tr>
+          <tr><td>AWS 公共 ECR</td><td><code>public.ecr.aws</code></td><td><code>docker pull reg.example.com/public.ecr.aws/...</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note reveal"><b>说明：</b>表中的 <code>reg.example.com</code> 只是示例，请换成你自己的域名。上游默认匿名拉取；需要私有镜像或想避开限流时，在 <code>.env</code> 里填对应的用户名和令牌。不需要的上游把 <code>enabled</code> 设为 <code>false</code> 即可关闭。</p>
+  </div>
+</section>
+
+<!-- ==================== 使用方法 ==================== -->
+<section class="section" id="how">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">How it works</span>
+      <h2>三步用起来</h2>
+    </div>
+
+    <div class="grid grid-3 steps">
+      <div class="card step reveal" style="--d:0ms">
+        <h3>部署代理</h3>
+        <p>克隆仓库，填好环境变量，一条 Docker Compose 命令启动。</p>
+      </div>
+      <div class="card step reveal" style="--d:90ms">
+        <h3>配域名和 HTTPS</h3>
+        <p>域名解析到代理机，用 Caddy 或 Nginx 反代到 <code>127.0.0.1:5000</code>，再把同一个域名写进 <code>config.yaml</code>。</p>
+      </div>
+      <div class="card step reveal" style="--d:180ms">
+        <h3>改客户端配置</h3>
+        <p>Docker Hub 在 <code>daemon.json</code> 里加一行 mirror；其他仓库在镜像名前加你的域名。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 客户端用法 ==================== -->
+<section class="section" id="usage">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Client usage</span>
+      <h2>客户端怎么用</h2>
+      <p class="section-desc">下面的 <code>reg.example.com</code> 都换成你自己的域名。</p>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card reveal">
+        <h3 style="margin-top:0">Docker Hub：registry-mirrors</h3>
+        <p>镜像名完全不用改。把下面的 JSON 写进 <code>/etc/docker/daemon.json</code>：</p>
+        <div class="code"><pre>{
+  "registry-mirrors": ["https://reg.example.com"]
+}</pre></div>
+        <div class="code"><pre>systemctl restart docker   # Linux
+docker pull nginx:alpine</pre></div>
+        <p>如果入口是纯 HTTP，还需要把它加进 <code>insecure-registries</code>。</p>
+      </div>
+
+      <div class="card reveal" style="--d:90ms">
+        <h3 style="margin-top:0">其他上游：路径前缀</h3>
+        <p>在同一个域名后面加上上游的前缀：</p>
+        <div class="code"><pre>docker pull reg.example.com/ghcr.io/owner/app:tag
+docker pull reg.example.com/quay.io/prometheus/prometheus:latest
+docker pull reg.example.com/registry.k8s.io/pause:3.9</pre></div>
+        <p>代理按前缀选择上游，并在请求真实仓库前去掉前缀。</p>
+      </div>
+    </div>
+
+    <p class="callout reveal" style="margin-top: 16px;"><b>不要</b>用 <code>/etc/hosts</code> 把 <code>ghcr.io</code> 这类官方域名劫持到代理上，证书对不上会导致 TLS 失败。</p>
+  </div>
+</section>
+
+<!-- ==================== 部署 ==================== -->
+<section class="section" id="deploy">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Deploy</span>
+      <h2>快速部署</h2>
+      <p class="section-desc">需要 64 位 Linux 主机（或本机 Docker Desktop）、Docker 与 Docker Compose v2，以及能访问上游仓库的出站 HTTPS。</p>
+    </div>
+
+    <div class="card reveal">
+      <div class="code"><pre>git clone https://github.com/AlexWuYh/easy-docker-proxy.git
+cd easy-docker-proxy
+
+cp .env.example .env
+EDP_ADMIN_TOKEN="$(openssl rand -hex 32)"
+EDP_WEB_PASSWORD="$(openssl rand -base64 24 | tr -d '\n')"
+sed -i.bak -e "s|^PROXY_ADMIN_TOKEN=.*|PROXY_ADMIN_TOKEN=$EDP_ADMIN_TOKEN|" \
+  -e "s|^PROXY_WEB_PASSWORD=.*|PROXY_WEB_PASSWORD=$EDP_WEB_PASSWORD|" .env
+rm -f .env.bak
+unset EDP_ADMIN_TOKEN EDP_WEB_PASSWORD
+
+cp configs/config.docker.yaml configs/config.yaml
+# 把 hosts 里的 reg.example.com 换成你的真实域名
+
+docker compose --env-file .env -f deploy/docker-compose.yaml up -d --build</pre></div>
+
+      <table style="margin-top: 18px;">
+        <tbody>
+          <tr><th>数据面</th><td>默认只在主机 <code>127.0.0.1:5000</code> 监听，通过 TLS 反代对外发布</td></tr>
+          <tr><th>管理面</th><td><code>:5001</code>，默认不对公网开放</td></tr>
+          <tr><th>HTTPS</th><td>推荐用已有的 Caddy 反代到 <code>127.0.0.1:5000</code></td></tr>
+          <tr><th>统计页</th><td>把 <code>127.0.0.1:5001</code> 映射出来，打开 <code>/stats/login.html</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="callout reveal" style="margin-top: 16px;"><b>域名要自己准备：</b>文档里的 <code>reg.example.com</code> 只是示例。先注册域名，把 A / AAAA（或 CNAME）解析到代理机，再把真实域名写进 Caddy / Nginx 和 <code>config.yaml</code> 的 <code>hosts</code>。解析生效前，客户端会拉取失败。</p>
+    <p class="note reveal">完整的安装、配置和排障说明见
+      <a href="https://github.com/AlexWuYh/easy-docker-proxy/blob/main/docs/install.md" target="_blank" rel="noopener noreferrer">安装与配置指南</a>、
+      <a href="https://github.com/AlexWuYh/easy-docker-proxy/blob/main/docs/troubleshooting.md" target="_blank" rel="noopener noreferrer">排障文档</a>。
+    </p>
+  </div>
+</section>
+
+<!-- ==================== 界面预览 ==================== -->
+<section class="section" id="shots">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Screenshots</span>
+      <h2>统计控制台</h2>
+      <p class="section-desc">谁在拉、拉了什么、哪个上游出错，一个网页看清。截图为演示数据，点击可看大图。</p>
+    </div>
+
+    <div class="grid grid-2">
+      <figure class="reveal" style="--d:0ms">
+        <a class="shot" href="/stats-upstream.jpg" target="_blank" rel="noopener noreferrer"><img src="/stats-upstream.jpg" alt="上游仓库分析" width="1600" height="1029" loading="lazy"></a>
+        <figcaption class="shot-cap">上游仓库分析：按上游看拉取量与流量</figcaption>
+      </figure>
+      <figure class="reveal" style="--d:90ms">
+        <a class="shot" href="/stats-images.jpg" target="_blank" rel="noopener noreferrer"><img src="/stats-images.jpg" alt="镜像列表" width="1600" height="1029" loading="lazy"></a>
+        <figcaption class="shot-cap">镜像列表：哪些镜像被拉得最多</figcaption>
+      </figure>
+      <figure class="reveal" style="--d:0ms">
+        <a class="shot" href="/stats-events.jpg" target="_blank" rel="noopener noreferrer"><img src="/stats-events.jpg" alt="事件记录" width="1600" height="1029" loading="lazy"></a>
+        <figcaption class="shot-cap">事件：逐条查看每次拉取与错误</figcaption>
+      </figure>
+      <figure class="reveal" style="--d:90ms">
+        <a class="shot" href="/stats-login.jpg" target="_blank" rel="noopener noreferrer"><img src="/stats-login.jpg" alt="登录页" width="1600" height="1029" loading="lazy"></a>
+        <figcaption class="shot-cap">登录：统计页需要账号才能访问</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CTA ==================== -->
+<section class="cta">
+  <div class="container reveal">
+    <h2>几分钟，把镜像拉取加速起来</h2>
+    <p>免费、开源，跑在你自己的服务器上。</p>
+    <div class="hero-actions" style="margin-top:0">
+      <a class="btn btn-primary" href="#deploy">快速部署</a>
+      <a class="btn btn-ghost" href="https://github.com/AlexWuYh/easy-docker-proxy" target="_blank" rel="noopener noreferrer">查看源码</a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <div class="container">
+    <p>
+      easy-docker-proxy 是开源项目（MIT） ·
+      <a href="https://github.com/AlexWuYh/easy-docker-proxy" target="_blank" rel="noopener noreferrer">GitHub 仓库</a> ·
+      <a href="https://github.com/AlexWuYh/easy-docker-proxy/releases" target="_blank" rel="noopener noreferrer">发布页面</a>
+    </p>
+    <div class="footer-meta">
+    <p class="author-wrap">
+      <a class="author-link" href="https://github.com/AlexWuYh" target="_blank" rel="noopener noreferrer"
+         aria-label="作者 AlexWuYh，打开 GitHub 个人主页" title="GitHub 个人主页">
+        <img src="/author-avatar.jpg" alt="" width="24" height="24" loading="lazy">
+        <span>作者 <b>AlexWuYh</b></span>
+      </a>
+    </p>
+    <!-- friends:start -->
+    <p class="friends">
+      <span class="friends-label">友情链接</span>
+      <a href="https://screenclock.wuewa.cn/" target="_blank" rel="noopener" title="Android 全屏床头 / 桌面时钟">ScreenClock</a>
+      <a href="https://dicomflow.wuewa.cn/" target="_blank" rel="noopener" title="CT / MRI 片子转 MP4 / GIF">DicomFlow</a>
+      <a href="https://jot.wuewa.cn/" target="_blank" rel="noopener" title="本地优先的碎片笔记，AI 周期总结">Jot</a>
+    </p>
+    <!-- friends:end -->
+    </div>
+  </div>
+</footer>
+
+<script src="/releases.js" data-repo="AlexWuYh/easy-docker-proxy" defer></script>
+
+<script>
+(function () {
+  'use strict';
+
+  var root = document.documentElement;
+  var en = (root.lang || '').toLowerCase().indexOf('en') === 0;
+  var toggle = document.getElementById('themeToggle');
+
+  function applyTheme(theme, persist) {
+    root.dataset.theme = theme;
+    toggle.setAttribute('aria-label', theme === 'dark' ? '切换到亮色主题' : '切换到暗色主题');
+    if (persist) {
+      try { localStorage.setItem('edp-theme', theme); } catch (e) {}
+    }
+  }
+  applyTheme(root.dataset.theme || 'light', false);
+  toggle.addEventListener('click', function () {
+    applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark', true);
+  });
+
+  // 代码块复制按钮
+  [].forEach.call(document.querySelectorAll('.code'), function (box) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = en ? 'Copy' : '复制';
+    btn.addEventListener('click', function () {
+      var text = box.querySelector('pre').innerText;
+      var done = function () {
+        btn.textContent = en ? 'Copied' : '已复制';
+        setTimeout(function () { btn.textContent = en ? 'Copy' : '复制'; }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () {});
+      }
+    });
+    box.appendChild(btn);
+  });
+
+  var reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' });
+    reveals.forEach(function (el) { io.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  var nav = document.getElementById('nav');
+  function onScroll() { nav.classList.toggle('scrolled', window.scrollY > 8); }
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
+</script>
+
+</body>
+</html>

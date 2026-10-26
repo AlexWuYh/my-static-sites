@@ -34,5 +34,17 @@
       "en": "Local-first fragment notes with AI summaries"
     },
     "repo": "AlexWuYh/Jot"
+  },
+  {
+    "id": "edp",
+    "dir": "easy-docker-proxy",
+    "name": "easy-docker-proxy",
+    "url": "https://edp.wuewa.cn/",
+    "url_en": "https://edp.wuewa.cn/en/",
+    "desc": {
+      "zh": "多上游 Docker 镜像加速代理，零镜像缓存",
+      "en": "Multi-upstream Docker registry proxy, no layer cache"
+    },
+    "repo": "AlexWuYh/easy-docker-proxy"
   }
 ]
