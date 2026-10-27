@@ -719,7 +719,7 @@ docker compose --env-file .env -f deploy/docker-compose.yaml up -d</pre></div>
           <tr><th>Data plane</th><td>Listens on host <code>127.0.0.1:5000</code> by default (change with <code>PROXY_PORT</code>); publish it through a TLS reverse proxy</td></tr>
           <tr><th>Admin plane</th><td><code>:5001</code>, not exposed publicly by default</td></tr>
           <tr><th>HTTPS</th><td>Prefer your existing Caddy proxying to <code>127.0.0.1:5000</code> (match <code>PROXY_PORT</code>); without one, add <code>--profile edge</code> to use the bundled Caddy, whose site name comes from <code>PROXY_DOMAIN</code></td></tr>
-          <tr><th>Stats UI</th><td>Map <code>127.0.0.1:5001</code> and open <code>/stats/login.html</code></td></tr>
+          <tr><th>Stats UI</th><td>Map <code>127.0.0.1:5001</code> and just open it in a browser</td></tr>
         </tbody>
       </table>
     </div>

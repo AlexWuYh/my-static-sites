@@ -719,7 +719,7 @@ docker compose --env-file .env -f deploy/docker-compose.yaml up -d</pre></div>
           <tr><th>数据面</th><td>默认只在主机 <code>127.0.0.1:5000</code> 监听（可用 <code>PROXY_PORT</code> 修改），通过 TLS 反代对外发布</td></tr>
           <tr><th>管理面</th><td><code>:5001</code>，默认不对公网开放</td></tr>
           <tr><th>HTTPS</th><td>推荐用已有的 Caddy 反代到 <code>127.0.0.1:5000</code>（端口与 <code>PROXY_PORT</code> 一致）；没有现成 Caddy 时可加 <code>--profile edge</code> 使用自带的，站点名取自 <code>PROXY_DOMAIN</code></td></tr>
-          <tr><th>统计页</th><td>把 <code>127.0.0.1:5001</code> 映射出来，打开 <code>/stats/login.html</code></td></tr>
+          <tr><th>统计页</th><td>把 <code>127.0.0.1:5001</code> 映射出来，浏览器直接访问即可</td></tr>
         </tbody>
       </table>
     </div>
