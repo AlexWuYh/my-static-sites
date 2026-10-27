@@ -599,11 +599,11 @@
     <div class="grid grid-3 steps">
       <div class="card step reveal" style="--d:0ms">
         <h3>部署代理</h3>
-        <p>克隆仓库，填好环境变量，一条 Docker Compose 命令启动。</p>
+        <p>克隆仓库，填好环境变量，一条 Docker Compose 命令启动，镜像直接从 GHCR 拉取。</p>
       </div>
       <div class="card step reveal" style="--d:90ms">
         <h3>配域名和 HTTPS</h3>
-        <p>域名解析到代理机，用 Caddy 或 Nginx 反代到 <code>127.0.0.1:5000</code>，再把同一个域名写进 <code>config.yaml</code>。</p>
+        <p>域名解析到代理机，把它写进 <code>.env</code> 的 <code>PROXY_DOMAIN</code>，再用 Caddy 或 Nginx 反代到 <code>127.0.0.1:5000</code>。</p>
       </div>
       <div class="card step reveal" style="--d:180ms">
         <h3>改客户端配置</h3>
@@ -667,36 +667,48 @@ cd easy-docker-proxy</pre></div>
         </li>
         <li>
           <h3>准备环境变量</h3>
-          <p>复制模板，再生成随机的管理令牌和统计页密码写入 <code>.env</code>。统计页账号默认是 <code>admin</code>，密码就是 <code>PROXY_WEB_PASSWORD</code>。</p>
+          <p>复制模板，生成随机的管理令牌和统计页密码，并把你的入口域名写进 <code>PROXY_DOMAIN</code>（不带 <code>https://</code>）。统计页账号默认是 <code>admin</code>，密码就是 <code>PROXY_WEB_PASSWORD</code>。</p>
           <div class="code" data-lang="bash" data-title="Terminal"><pre>cp .env.example .env
 
 # 生成随机的管理令牌和统计页密码
 EDP_ADMIN_TOKEN="$(openssl rand -hex 32)"
 EDP_WEB_PASSWORD="$(openssl rand -base64 24 | tr -d '\n')"
 
-# 写入 .env
+# 写入 .env（PROXY_DOMAIN 换成你的真实域名）
 sed -i.bak -e "s|^PROXY_ADMIN_TOKEN=.*|PROXY_ADMIN_TOKEN=$EDP_ADMIN_TOKEN|" \
-  -e "s|^PROXY_WEB_PASSWORD=.*|PROXY_WEB_PASSWORD=$EDP_WEB_PASSWORD|" .env
+  -e "s|^PROXY_WEB_PASSWORD=.*|PROXY_WEB_PASSWORD=$EDP_WEB_PASSWORD|" \
+  -e "s|^PROXY_DOMAIN=.*|PROXY_DOMAIN=你的真实域名|" .env
 rm -f .env.bak
 
 # 清掉当前终端里的明文变量
 unset EDP_ADMIN_TOKEN EDP_WEB_PASSWORD</pre></div>
+          <p><code>.env</code> 不会执行 <code>$(...)</code>，所以随机值要先在 shell 里生成再写入。数据面端口被占用时，可以再设 <code>PROXY_PORT</code>（默认 <code>5000</code>）；想固定镜像版本，设 <code>PROXY_IMAGE</code>。</p>
         </li>
         <li>
-          <h3>填入你的域名</h3>
-          <p>复制业务配置，再把 dockerhub 的 <code>hosts</code> 改成你自己的域名（不要带 <code>https://</code>）。</p>
+          <h3>准备业务配置</h3>
+          <p>直接复制模板即可。dockerhub 的 <code>hosts</code> 已写成 <code>${PROXY_DOMAIN}</code>，由上一步 <code>.env</code> 里的域名展开，不用再手改 YAML。</p>
           <div class="code" data-lang="bash" data-title="Terminal"><pre>cp configs/config.docker.yaml configs/config.yaml</pre></div>
-          <div class="code" data-lang="yaml" data-title="configs/config.yaml"><pre>registries:
+          <div class="code" data-lang="yaml" data-title="configs/config.yaml（无需修改）"><pre>registries:
   - name: dockerhub
     hosts:
-      - "reg.example.com"   # ← 换成你的真实域名
+      - "${PROXY_DOMAIN:-reg.example.com}"   # 取自 .env 的 PROXY_DOMAIN
     path_prefixes:
       - "docker.io"</pre></div>
         </li>
         <li>
           <h3>启动</h3>
-          <p>在仓库根目录执行，第一次会先构建镜像。</p>
-          <div class="code" data-lang="bash" data-title="Terminal"><pre>docker compose --env-file .env -f deploy/docker-compose.yaml up -d --build</pre></div>
+          <p>在仓库根目录执行。默认拉取 CI 发布的多架构镜像 <a href="https://github.com/AlexWuYh/easy-docker-proxy/pkgs/container/easy-docker-proxy" target="_blank" rel="noopener noreferrer"><code>ghcr.io/alexwuyh/easy-docker-proxy:latest</code></a>（amd64 / arm64）；想用本地源码构建，在命令末尾加 <code>--build</code>。</p>
+          <div class="code" data-lang="bash" data-title="Terminal"><pre>docker compose --env-file .env -f deploy/docker-compose.yaml up -d</pre></div>
+        </li>
+        <li>
+          <h3>验证</h3>
+          <p>用入口域名作为 Host 访问数据面，返回 <code>200</code> 就说明代理已就绪。</p>
+          <div class="code" data-lang="bash" data-title="Terminal"><pre>set -a; . ./.env; set +a
+curl -sS -o /dev/null -w '%{http_code}\n' \
+  -H "Host: $PROXY_DOMAIN" "http://127.0.0.1:${PROXY_PORT:-5000}/v2/"</pre></div>
+          <p>以后升级到新镜像：</p>
+          <div class="code" data-lang="bash" data-title="Terminal"><pre>docker compose --env-file .env -f deploy/docker-compose.yaml pull
+docker compose --env-file .env -f deploy/docker-compose.yaml up -d</pre></div>
         </li>
       </ol>
     </div>
@@ -704,15 +716,15 @@ unset EDP_ADMIN_TOKEN EDP_WEB_PASSWORD</pre></div>
     <div class="card reveal" style="margin-top: 16px; padding: 8px 12px;">
       <table>
         <tbody>
-          <tr><th>数据面</th><td>默认只在主机 <code>127.0.0.1:5000</code> 监听，通过 TLS 反代对外发布</td></tr>
+          <tr><th>数据面</th><td>默认只在主机 <code>127.0.0.1:5000</code> 监听（可用 <code>PROXY_PORT</code> 修改），通过 TLS 反代对外发布</td></tr>
           <tr><th>管理面</th><td><code>:5001</code>，默认不对公网开放</td></tr>
-          <tr><th>HTTPS</th><td>推荐用已有的 Caddy 反代到 <code>127.0.0.1:5000</code></td></tr>
+          <tr><th>HTTPS</th><td>推荐用已有的 Caddy 反代到 <code>127.0.0.1:5000</code>（端口与 <code>PROXY_PORT</code> 一致）；没有现成 Caddy 时可加 <code>--profile edge</code> 使用自带的，站点名取自 <code>PROXY_DOMAIN</code></td></tr>
           <tr><th>统计页</th><td>把 <code>127.0.0.1:5001</code> 映射出来，打开 <code>/stats/login.html</code></td></tr>
         </tbody>
       </table>
     </div>
 
-    <p class="callout reveal" style="margin-top: 16px;"><b>域名要自己准备：</b>文档里的 <code>reg.example.com</code> 只是示例。先注册域名，把 A / AAAA（或 CNAME）解析到代理机，再把真实域名写进 Caddy / Nginx 和 <code>config.yaml</code> 的 <code>hosts</code>。解析生效前，客户端会拉取失败。</p>
+    <p class="callout reveal" style="margin-top: 16px;"><b>域名要自己准备：</b>文档里的 <code>reg.example.com</code> 只是示例。先注册域名，把 A / AAAA（或 CNAME）解析到代理机，再把真实域名写进 <code>.env</code> 的 <code>PROXY_DOMAIN</code> 和 Caddy / Nginx。解析生效前，客户端会拉取失败。</p>
     <p class="note reveal">完整的安装、配置和排障说明见
       <a href="https://github.com/AlexWuYh/easy-docker-proxy/blob/main/docs/install.md" target="_blank" rel="noopener noreferrer">安装与配置指南</a>、
       <a href="https://github.com/AlexWuYh/easy-docker-proxy/blob/main/docs/troubleshooting.md" target="_blank" rel="noopener noreferrer">排障文档</a>。

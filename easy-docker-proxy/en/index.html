@@ -599,11 +599,11 @@
     <div class="grid grid-3 steps">
       <div class="card step reveal" style="--d:0ms">
         <h3>Deploy the proxy</h3>
-        <p>Clone the repo, fill in the environment variables and start it with one Docker Compose command.</p>
+        <p>Clone the repo, fill in the environment variables and start it with one Docker Compose command; the image is pulled straight from GHCR.</p>
       </div>
       <div class="card step reveal" style="--d:90ms">
         <h3>Set up the domain and HTTPS</h3>
-        <p>Point the domain at the proxy host, reverse-proxy it to <code>127.0.0.1:5000</code> with Caddy or Nginx, and put the same domain in <code>config.yaml</code>.</p>
+        <p>Point the domain at the proxy host, put it in <code>PROXY_DOMAIN</code> in <code>.env</code>, then reverse-proxy to <code>127.0.0.1:5000</code> with Caddy or Nginx.</p>
       </div>
       <div class="card step reveal" style="--d:180ms">
         <h3>Update the clients</h3>
@@ -667,36 +667,48 @@ cd easy-docker-proxy</pre></div>
         </li>
         <li>
           <h3>Prepare the environment variables</h3>
-          <p>Copy the template, then generate a random admin token and stats password into <code>.env</code>. The stats login defaults to <code>admin</code>, and its password is <code>PROXY_WEB_PASSWORD</code>.</p>
+          <p>Copy the template, generate a random admin token and stats password, and put your ingress domain in <code>PROXY_DOMAIN</code> (without <code>https://</code>). The stats login defaults to <code>admin</code>, and its password is <code>PROXY_WEB_PASSWORD</code>.</p>
           <div class="code" data-lang="bash" data-title="Terminal"><pre>cp .env.example .env
 
 # Generate a random admin token and stats password
 EDP_ADMIN_TOKEN="$(openssl rand -hex 32)"
 EDP_WEB_PASSWORD="$(openssl rand -base64 24 | tr -d '\n')"
 
-# Write them into .env
+# Write them into .env (replace PROXY_DOMAIN with your real domain)
 sed -i.bak -e "s|^PROXY_ADMIN_TOKEN=.*|PROXY_ADMIN_TOKEN=$EDP_ADMIN_TOKEN|" \
-  -e "s|^PROXY_WEB_PASSWORD=.*|PROXY_WEB_PASSWORD=$EDP_WEB_PASSWORD|" .env
+  -e "s|^PROXY_WEB_PASSWORD=.*|PROXY_WEB_PASSWORD=$EDP_WEB_PASSWORD|" \
+  -e "s|^PROXY_DOMAIN=.*|PROXY_DOMAIN=your-real-domain|" .env
 rm -f .env.bak
 
 # Clear the plaintext variables from this shell
 unset EDP_ADMIN_TOKEN EDP_WEB_PASSWORD</pre></div>
+          <p><code>.env</code> does not run <code>$(...)</code>, so generate the random values in the shell first and then write them in. If the data-plane port is taken, also set <code>PROXY_PORT</code> (default <code>5000</code>); to pin an image version, set <code>PROXY_IMAGE</code>.</p>
         </li>
         <li>
-          <h3>Put in your domain</h3>
-          <p>Copy the config, then change <code>hosts</code> of dockerhub to your own domain (without <code>https://</code>).</p>
+          <h3>Prepare the config</h3>
+          <p>Just copy the template. The dockerhub <code>hosts</code> entry is already written as <code>${PROXY_DOMAIN}</code> and expands from the domain in <code>.env</code>, so there is no YAML to edit.</p>
           <div class="code" data-lang="bash" data-title="Terminal"><pre>cp configs/config.docker.yaml configs/config.yaml</pre></div>
-          <div class="code" data-lang="yaml" data-title="configs/config.yaml"><pre>registries:
+          <div class="code" data-lang="yaml" data-title="configs/config.yaml (no edits needed)"><pre>registries:
   - name: dockerhub
     hosts:
-      - "reg.example.com"   # ← replace with your real domain
+      - "${PROXY_DOMAIN:-reg.example.com}"   # taken from PROXY_DOMAIN in .env
     path_prefixes:
       - "docker.io"</pre></div>
         </li>
         <li>
           <h3>Start it</h3>
-          <p>Run it from the repo root; the first run builds the image.</p>
-          <div class="code" data-lang="bash" data-title="Terminal"><pre>docker compose --env-file .env -f deploy/docker-compose.yaml up -d --build</pre></div>
+          <p>Run it from the repo root. By default it pulls the multi-arch image published by CI, <a href="https://github.com/AlexWuYh/easy-docker-proxy/pkgs/container/easy-docker-proxy" target="_blank" rel="noopener noreferrer"><code>ghcr.io/alexwuyh/easy-docker-proxy:latest</code></a> (amd64 / arm64); to build from local source instead, append <code>--build</code>.</p>
+          <div class="code" data-lang="bash" data-title="Terminal"><pre>docker compose --env-file .env -f deploy/docker-compose.yaml up -d</pre></div>
+        </li>
+        <li>
+          <h3>Verify</h3>
+          <p>Hit the data plane with your ingress domain as the Host header; a <code>200</code> means the proxy is ready.</p>
+          <div class="code" data-lang="bash" data-title="Terminal"><pre>set -a; . ./.env; set +a
+curl -sS -o /dev/null -w '%{http_code}\n' \
+  -H "Host: $PROXY_DOMAIN" "http://127.0.0.1:${PROXY_PORT:-5000}/v2/"</pre></div>
+          <p>To upgrade to a newer image later:</p>
+          <div class="code" data-lang="bash" data-title="Terminal"><pre>docker compose --env-file .env -f deploy/docker-compose.yaml pull
+docker compose --env-file .env -f deploy/docker-compose.yaml up -d</pre></div>
         </li>
       </ol>
     </div>
@@ -704,15 +716,15 @@ unset EDP_ADMIN_TOKEN EDP_WEB_PASSWORD</pre></div>
     <div class="card reveal" style="margin-top: 16px; padding: 8px 12px;">
       <table>
         <tbody>
-          <tr><th>Data plane</th><td>Listens on host <code>127.0.0.1:5000</code> by default; publish it through a TLS reverse proxy</td></tr>
+          <tr><th>Data plane</th><td>Listens on host <code>127.0.0.1:5000</code> by default (change with <code>PROXY_PORT</code>); publish it through a TLS reverse proxy</td></tr>
           <tr><th>Admin plane</th><td><code>:5001</code>, not exposed publicly by default</td></tr>
-          <tr><th>HTTPS</th><td>Prefer your existing Caddy proxying to <code>127.0.0.1:5000</code></td></tr>
+          <tr><th>HTTPS</th><td>Prefer your existing Caddy proxying to <code>127.0.0.1:5000</code> (match <code>PROXY_PORT</code>); without one, add <code>--profile edge</code> to use the bundled Caddy, whose site name comes from <code>PROXY_DOMAIN</code></td></tr>
           <tr><th>Stats UI</th><td>Map <code>127.0.0.1:5001</code> and open <code>/stats/login.html</code></td></tr>
         </tbody>
       </table>
     </div>
 
-    <p class="callout reveal" style="margin-top: 16px;"><b>Bring your own domain:</b> <code>reg.example.com</code> in the docs is only an example. Register a domain, point A / AAAA (or CNAME) at the proxy host, then put the real hostname in Caddy / Nginx and in <code>hosts</code> of <code>config.yaml</code>. Until DNS takes effect, client pulls will fail.</p>
+    <p class="callout reveal" style="margin-top: 16px;"><b>Bring your own domain:</b> <code>reg.example.com</code> in the docs is only an example. Register a domain, point A / AAAA (or CNAME) at the proxy host, then put the real hostname in <code>PROXY_DOMAIN</code> in <code>.env</code> and in Caddy / Nginx. Until DNS takes effect, client pulls will fail.</p>
     <p class="note reveal">Full install, configuration and troubleshooting notes (currently in Chinese):
       <a href="https://github.com/AlexWuYh/easy-docker-proxy/blob/main/docs/install.md" target="_blank" rel="noopener noreferrer">install guide</a>,
       <a href="https://github.com/AlexWuYh/easy-docker-proxy/blob/main/docs/troubleshooting.md" target="_blank" rel="noopener noreferrer">troubleshooting</a>.
