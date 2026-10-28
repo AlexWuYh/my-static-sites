@@ -46,5 +46,17 @@
       "en": "Multi-upstream Docker registry proxy, no layer cache"
     },
     "repo": "AlexWuYh/easy-docker-proxy"
+  },
+  {
+    "id": "jba",
+    "dir": "jenkins-build-archive",
+    "name": "Jenkins Build Archive",
+    "url": "https://jba.wuewa.cn/",
+    "url_en": "https://jba.wuewa.cn/en/",
+    "desc": {
+      "zh": "Jenkins 构建元数据归档，长期追溯 Git 与镜像",
+      "en": "Jenkins build metadata archive for long-term traceability"
+    },
+    "repo": "AlexWuYh/jenkins-build-archive"
   }
 ]

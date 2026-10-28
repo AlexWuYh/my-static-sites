@@ -1,0 +1,13 @@
+{
+ "repo": "AlexWuYh/jenkins-build-archive",
+ "releases": [
+  {
+   "tag_name": "v1.4.0",
+   "name": "v1.4.0 — Jenkins Build Archive",
+   "published_at": "2026-10-28T03:44:20Z",
+   "prerelease": false,
+   "body": "## 概述\n\n**Jenkins Build Archive** 首个正式版本。这是一个独立于 Jenkins 的构建元数据归档服务，在 Build Record 被清理后，仍可追溯 Git 分支 / Commit、Docker Image Tag / Digest 等信息。面向内网部署，开箱即用（Docker Compose）。\n\n## ✨ 新特性\n\n- **归档写入**：支持 Jenkins HTTP API 与 Shared Library 接入；以 `(jobName, buildId)` 保证幂等，归档失败不影响 Jenkins 构建结果\n- **查询与展示**：Web UI 与 REST API；支持按 Job / 分支 / Commit / Tag 搜索筛选，列表带序号，默认展示当日构建，`/?all=1` 查看全部历史\n- **Commit 详情**：归档 `commitMsg` / `commitAuthor` / `commitId` / `commitFiles`，详情页新增「Commit 详情」卡片；Commit SHA 与 `gitCommit` 互相回填，统一展示\n- **管理能力**：管理密码保护的单条 / 批量删除；支持最长保留天数、每 Job 上限等保留策略\n- **大数据量优化**：分页大小可选（20 / 50 / 100），Job 下拉有界，补充索引与 SQLite PRAGMA 调优\n\n## 🔒 安全\n\n- 写接口使用 `API_TOKEN`，Web 管理使用 `ADMIN_PASSWORD`；未配置或使用默认占位值时 **fail-closed（503）**\n- Shared Library 通过环境变量与文件传递 payload，避免 token 拼接进 shell 字符串\n- 页面与静态资源不嵌入任何凭据\n\n## 🐛 问题修复\n\n- 修复 `dateTo` 为当天时漏掉当日构建的边界问题\n- 修复 `currentBuild.duration` 未设置时构建耗时丢失\n- 修复 `gitCommit` 占位符 `-` 被当作有效值的问题，回退使用 `commitId`\n- 修复「全部历史」翻页后丢失范围，并将分页移至结果栏同行\n- 安全拆分内嵌 `commitFiles`，优化 Files 展示\n\n## 🚀 部署\n\n```bash\ncp .env.example .env   # 修改 API_TOKEN 与 ADMIN_PASSWORD\ndocker compose up -d --build\ncurl http://127.0.0.1:8080/health\n```\n\n完整说明见 [README](https://github.com/AlexWuYh/jenkins-build-archive#readme)。\n\n## 📦 发布资产\n\n| 文件 | 说明 |\n|------|------|\n| `jenkins-build-archive-v1.4.0.zip` | 源码包（由 GitHub Actions 自动构建） |\n| `jenkins-build-archive-v1.4.0.zip.sha256` | SHA-256 校验文件 |\n\n校验方式：`sha256sum -c jenkins-build-archive-v1.4.0.zip.sha256`\n\n---\n\n**Full Changelog**: https://github.com/AlexWuYh/jenkins-build-archive/commits/v1.4.0\n",
+   "html_url": "https://github.com/AlexWuYh/jenkins-build-archive/releases/tag/v1.4.0"
+  }
+ ]
+}
