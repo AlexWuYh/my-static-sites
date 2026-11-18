@@ -58,5 +58,17 @@
       "en": "Jenkins build metadata archive for long-term traceability"
     },
     "repo": "AlexWuYh/jenkins-build-archive"
+  },
+  {
+    "id": "configssh",
+    "dir": "ConfigSSH",
+    "name": "ConfigSSH",
+    "url": "https://configssh.wuewa.cn/",
+    "url_en": "https://configssh.wuewa.cn/en/",
+    "desc": {
+      "zh": "macOS SSH 配置管理器，一键连接",
+      "en": "macOS SSH config manager, connect in one click"
+    },
+    "repo": "AlexWuYh/ConfigSSH"
   }
 ]

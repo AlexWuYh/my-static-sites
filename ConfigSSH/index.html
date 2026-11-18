@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConfigSSH — macOS SSH 配置管理器 · 可视化编辑 ~/.ssh/config · 一键连接 · 开源免费</title>
+<meta name="description" content="ConfigSSH 是原生 macOS 应用：可视化管理 ~/.ssh/config，保存前预览差异、写入前自动备份，选中主机后一键交给 Terminal、Ghostty 等终端连接。本地优先，不保存 SSH 密码，支持 iCloud 加密同步。MIT 开源。">
+<meta name="keywords" content="SSH 配置管理, ssh config, macOS SSH 客户端, SSH 主机管理, 部署公钥, SSH 密钥管理, Ghostty, iCloud 同步, ConfigSSH">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://configssh.wuewa.cn/">
+<link rel="alternate" hreflang="zh-CN" href="https://configssh.wuewa.cn/">
+<link rel="alternate" hreflang="en" href="https://configssh.wuewa.cn/en/">
+<link rel="alternate" hreflang="x-default" href="https://configssh.wuewa.cn/">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<link rel="icon" type="image/png" href="/app-icon.png">
+<link rel="apple-touch-icon" href="/app-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ConfigSSH">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:url" content="https://configssh.wuewa.cn/">
+<meta property="og:title" content="ConfigSSH — 可视化管理 SSH 配置，一键连接">
+<meta property="og:description" content="原生 macOS 应用，直接读写 ~/.ssh/config：改动先预览、写入前备份，选中主机一键交给你的终端。MIT 开源。">
+<meta property="og:image" content="https://configssh.wuewa.cn/shot-hosts.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ConfigSSH — 可视化管理 SSH 配置，一键连接">
+<meta name="twitter:description" content="原生 macOS 应用，直接读写 ~/.ssh/config，改动先预览、写入前备份。MIT 开源。">
+<meta name="twitter:image" content="https://configssh.wuewa.cn/shot-hosts.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "ConfigSSH",
+  "description": "原生 macOS 应用：可视化管理 ~/.ssh/config，保存前预览差异、写入前自动备份，一键交给终端连接。",
+  "url": "https://configssh.wuewa.cn/",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS 14+",
+  "inLanguage": ["zh-CN", "en"],
+  "image": "https://configssh.wuewa.cn/app-icon.png",
+  "downloadUrl": "https://github.com/AlexWuYh/ConfigSSH/releases",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" },
+  "license": "https://opensource.org/licenses/MIT",
+  "sameAs": ["https://github.com/AlexWuYh/ConfigSSH"]
+}
+</script>
+<script>
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('cssh-theme'); } catch (e) {}
+    if (!t) {
+      t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --container: 1040px;
+    --radius: 18px;
+    --ease: cubic-bezier(.22, .61, .36, 1);
+    --grad: linear-gradient(135deg, #6b7bff 0%, #4c5bd6 100%);
+  }
+
+  html[data-theme="light"] {
+    --bg: #f6f7fc;
+    --surface: #ffffff;
+    --surface-2: #eef0fa;
+    --border: #e1e5f4;
+    --border-strong: #ccd2ea;
+    --text: #14172b;
+    --text-soft: #3a4060;
+    --muted: #6a7194;
+    --accent: #4c5bd6;
+    --accent-ink: #ffffff;
+    --accent-soft: rgba(91, 108, 240, .10);
+    --glow: rgba(91, 108, 240, .16);
+    --warn-bg: #fff7ed;
+    --warn-border: #fed7aa;
+    --warn-text: #9a4a0b;
+    --nav-bg: rgba(246, 247, 252, .8);
+    --shadow: 0 30px 70px -34px rgba(40, 50, 120, .42);
+  }
+
+  html[data-theme="dark"] {
+    --bg: #0d0f1c;
+    --surface: #141830;
+    --surface-2: #1b2040;
+    --border: #272d52;
+    --border-strong: #38406c;
+    --text: #e9ecfa;
+    --text-soft: #b6bcd9;
+    --muted: #868daf;
+    --accent: #8e9bff;
+    --accent-ink: #0e1230;
+    --accent-soft: rgba(142, 155, 255, .15);
+    --glow: rgba(142, 155, 255, .14);
+    --warn-bg: rgba(249, 115, 22, .09);
+    --warn-border: rgba(249, 115, 22, .3);
+    --warn-text: #fdba74;
+    --nav-bg: rgba(13, 15, 28, .76);
+    --shadow: 0 30px 70px -30px rgba(0, 0, 0, .9);
+  }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    transition: background .25s var(--ease), color .25s var(--ease);
+  }
+  svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  a { color: var(--accent); }
+  .container { width: min(var(--container), 100% - 32px); margin-inline: auto; }
+
+  /* ---------- 导航 ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--nav-bg);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s;
+  }
+  .nav.scrolled { border-bottom-color: var(--border); }
+  .nav-inner { height: 60px; display: flex; align-items: center; justify-content: space-between; }
+  .brand {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-size: .98rem; font-weight: 700; letter-spacing: -.01em;
+    color: var(--text); text-decoration: none;
+  }
+  .brand img { width: 30px; height: 30px; border-radius: 9px; }
+  .nav-actions { display: flex; align-items: center; gap: 8px; }
+  .nav-link {
+    font-size: .88rem; color: var(--text-soft); text-decoration: none;
+    padding: 6px 11px; border-radius: 8px;
+  }
+  .nav-link:hover { color: var(--text); background: var(--surface-2); }
+  .lang-link {
+    font-size: .8rem; font-weight: 650; color: var(--text-soft); text-decoration: none;
+    padding: 6px 9px; border: 1px solid var(--border-strong); border-radius: 8px;
+  }
+  .lang-link:hover { color: var(--text); background: var(--surface-2); }
+  .icon-btn {
+    width: 36px; height: 36px; display: grid; place-items: center;
+    border-radius: 10px; border: 1px solid var(--border-strong);
+    background: transparent; color: var(--text-soft); cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+  .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+  .icon-btn svg { width: 18px; height: 18px; }
+  .icon-btn svg.gh { fill: currentColor; stroke: none; }
+  html[data-theme="light"] .icon-sun, html[data-theme="dark"] .icon-moon { display: none; }
+
+  /* ---------- 首屏 ---------- */
+  .hero { position: relative; overflow: hidden; padding: 72px 0 56px; text-align: center; }
+  .hero::before {
+    content: ""; position: absolute; inset: -120px 0 auto; height: 540px; z-index: -1;
+    background: radial-gradient(60% 60% at 50% 0%, var(--glow), transparent 70%);
+  }
+  .hero-icon { width: 84px; height: 84px; border-radius: 22px; box-shadow: var(--shadow); }
+  .pill {
+    display: inline-block; margin: 22px 0 16px;
+    font-size: .8rem; color: var(--text-soft);
+    padding: 5px 13px; border: 1px solid var(--border-strong); border-radius: 999px;
+    background: var(--surface);
+  }
+  .pill b { color: var(--accent); font-weight: 650; }
+  h1 { font-size: clamp(2.3rem, 6vw, 3.6rem); line-height: 1.12; letter-spacing: -.03em; font-weight: 800; }
+  h1 small { font-size: .5em; font-weight: 650; color: var(--muted); letter-spacing: 0; margin-left: .15em; }
+  .tagline { margin: 18px auto 0; max-width: 680px; font-size: clamp(1.1rem, 2.6vw, 1.4rem); color: var(--text-soft); text-wrap: balance; }
+  .tagline strong { color: var(--accent); font-weight: 700; }
+  .desc { margin: 12px auto 0; max-width: 700px; text-wrap: balance; color: var(--muted); font-size: .98rem; }
+  .hero-actions { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    font-size: .98rem; font-weight: 650; text-decoration: none;
+    padding: 13px 24px; border-radius: 13px;
+    transition: transform .2s var(--ease), box-shadow .2s var(--ease), background .2s;
+  }
+  .btn svg { width: 19px; height: 19px; stroke-width: 2.2; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: 0 10px 28px -10px var(--accent); }
+  .btn-primary:hover { transform: translateY(-2px); }
+  .btn-ghost { color: var(--text); border: 1px solid var(--border-strong); background: var(--surface); }
+  .btn-ghost:hover { transform: translateY(-2px); background: var(--surface-2); }
+  .btn-sm { font-size: .88rem; padding: 10px 16px; border-radius: 11px; }
+  .hero-note { margin-top: 18px; font-size: .82rem; color: var(--muted); }
+
+  .shot {
+    margin: 48px auto 0; max-width: 900px;
+    border-radius: var(--radius); overflow: hidden;
+    border: 1px solid var(--border); box-shadow: var(--shadow); background: var(--surface);
+  }
+  .shot img { display: block; width: 100%; height: auto; }
+  .shot-cap { margin-top: 14px; font-size: .85rem; color: var(--muted); }
+
+  /* ---------- 通用区块 ---------- */
+  .section { padding: 68px 0; }
+  .section-head { text-align: center; max-width: 660px; margin: 0 auto 40px; }
+  .section-label {
+    display: inline-block; font-size: .76rem; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 10px;
+  }
+  h2 { font-size: clamp(1.6rem, 3.6vw, 2.2rem); line-height: 1.25; letter-spacing: -.02em; font-weight: 750; }
+  .section-desc { margin-top: 12px; color: var(--muted); }
+
+  .grid { display: grid; gap: 16px; }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 26px;
+    transition: transform .25s var(--ease), border-color .25s;
+  }
+  .card:hover { transform: translateY(-3px); border-color: var(--border-strong); }
+  .card h3 { font-size: 1.05rem; margin: 14px 0 8px; font-weight: 700; }
+  .card p { color: var(--text-soft); font-size: .93rem; }
+  .card-icon {
+    width: 42px; height: 42px; display: grid; place-items: center;
+    border-radius: 12px; background: var(--accent-soft); color: var(--accent);
+  }
+  .card-icon svg { width: 21px; height: 21px; }
+
+  .steps { counter-reset: s; }
+  .step::before {
+    counter-increment: s; content: counter(s);
+    width: 34px; height: 34px; display: grid; place-items: center;
+    border-radius: 50%; background: var(--grad); color: #fff;
+    font-weight: 750; font-size: .95rem;
+  }
+  .note {
+    margin-top: 22px; padding: 16px 20px; border-radius: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text-soft); font-size: .92rem;
+  }
+  .note b { color: var(--text); }
+
+  .tag {
+    display: inline-block; font-size: .72rem; font-weight: 650; color: var(--accent);
+    background: var(--accent-soft); padding: 2px 9px; border-radius: 999px; margin-left: 6px;
+    vertical-align: middle;
+  }
+  .file { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .8rem; color: var(--muted); word-break: break-all; margin-bottom: 6px; }
+  .dl-card { display: flex; flex-direction: column; }
+  .dl-card .btn { margin-top: auto; }
+  .dl-card p { margin-bottom: 14px; }
+  .dl-card .files { margin-bottom: 18px; }
+
+  .list { list-style: none; display: grid; gap: 10px; }
+  .list li { display: flex; gap: 10px; color: var(--text-soft); font-size: .94rem; }
+  .list li::before { content: "✓"; color: var(--accent); font-weight: 800; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: 13px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody th { width: 20%; color: var(--muted); font-weight: 600; }
+  td { color: var(--text-soft); }
+  tr:last-child th, tr:last-child td { border-bottom: 0; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .86em; background: var(--surface-2); padding: 2px 6px; border-radius: 6px; }
+  kbd {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .82em;
+    background: var(--surface-2); border: 1px solid var(--border-strong); border-bottom-width: 2px;
+    padding: 1px 6px; border-radius: 6px; color: var(--text);
+  }
+
+  .callout {
+    padding: 16px 20px; border-radius: 14px;
+    background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-text);
+    font-size: .92rem;
+  }
+
+  /* CTA & 页脚 */
+  .cta { text-align: center; padding: 72px 0 80px; }
+  .cta p { margin: 12px 0 28px; color: var(--muted); }
+  footer { border-top: 1px solid var(--border); padding: 20px 0 22px; text-align: center; color: var(--muted); font-size: .85rem; }
+  footer p + p { margin-top: 4px; font-size: .76rem; line-height: 1.55; }
+  footer a { color: var(--text-soft); }
+
+  .footer-meta {
+    margin-top: 12px;
+    display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+    gap: 8px 22px;
+  }
+  .author-wrap { margin: 0; }
+  .author-link {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 3px 12px 3px 3px;
+    border: 1px solid var(--border-strong); border-radius: 999px;
+    color: var(--text-soft); text-decoration: none;
+    transition: color .2s, background .2s, border-color .2s;
+  }
+  .author-link:hover { color: var(--text); background: var(--surface-2); }
+  .author-link img { width: 24px; height: 24px; border-radius: 50%; display: block; }
+  .author-link b { color: var(--text); font-weight: 650; }
+  .friends {
+    margin: 0;
+    display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+    gap: 4px 14px; font-size: .82rem;
+  }
+  .friends-label { color: var(--muted); }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s var(--ease), transform .6s var(--ease); transition-delay: var(--d, 0ms); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 820px) {
+    .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    .nav-link { display: none; }
+    .section { padding: 52px 0; }
+    .hero { padding: 52px 0 36px; }
+    .cta { padding: 56px 0 64px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+    .reveal { opacity: 1 !important; transform: none !important; }
+  }
+
+  /* ---------- 代码块（Mac 窗口风格 + 语法高亮） ---------- */
+  .code {
+    --code-bg: #0e1621; --code-bar: #172233; --code-fg: #d6e2f0;
+    margin: 14px 0; border-radius: 12px; overflow: hidden;
+    background: var(--code-bg); border: 1px solid #22344a;
+    box-shadow: 0 16px 36px -20px rgba(0, 0, 0, .55);
+  }
+  .code-bar {
+    display: flex; align-items: center; gap: 12px; height: 38px; padding: 0 12px 0 14px;
+    background: var(--code-bar); border-bottom: 1px solid rgba(255, 255, 255, .06);
+  }
+  .code-dots { display: flex; gap: 7px; flex: none; }
+  .code-dots i { display: block; width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
+  .code-dots i:nth-child(2) { background: #febc2e; }
+  .code-dots i:nth-child(3) { background: #28c840; }
+  .code-title {
+    flex: 1; min-width: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font: 600 .74rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: #8a9bb0;
+  }
+  .copy-btn {
+    flex: none; font-size: .72rem; font-weight: 600; color: #9fb0c4;
+    background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .12); border-radius: 7px;
+    padding: 3px 10px; cursor: pointer; transition: background .2s, color .2s;
+  }
+  .copy-btn:hover { background: rgba(255, 255, 255, .13); color: #fff; }
+  .code pre {
+    margin: 0; padding: 16px 18px; overflow-x: auto; background: transparent; border: 0; color: var(--code-fg);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .82rem; line-height: 1.75; tab-size: 2;
+  }
+  .tk-cmt { color: #66798e; font-style: italic; }
+  .tk-str { color: #9ad47f; }
+  .tk-var { color: #e6c07b; }
+  .tk-cmd { color: #6cb4f5; font-weight: 600; }
+  .tk-flag { color: #56c2d0; }
+  .tk-op { color: #c586e0; }
+  .tk-num { color: #e0a169; }
+  .tk-key { color: #6cb4f5; }
+  .tk-kw { color: #e0a169; }
+
+  /* ---------- 部署步骤 ---------- */
+  .deploy-steps { list-style: none; counter-reset: d; margin: 0; padding: 0; }
+  .deploy-steps > li { counter-increment: d; position: relative; padding: 0 0 30px 54px; }
+  .deploy-steps > li:last-child { padding-bottom: 0; }
+  .deploy-steps > li::before {
+    content: counter(d); position: absolute; left: 0; top: 0;
+    width: 34px; height: 34px; display: grid; place-items: center;
+    border-radius: 50%; background: var(--grad); color: #fff; font-weight: 750; font-size: .95rem;
+  }
+  .deploy-steps > li::after {
+    content: ""; position: absolute; left: 16px; top: 42px; bottom: 8px; width: 2px; background: var(--border);
+  }
+  .deploy-steps > li:last-child::after { display: none; }
+  .deploy-steps h3 { font-size: 1.05rem; font-weight: 700; margin: 4px 0 6px; }
+  .deploy-steps p { color: var(--text-soft); font-size: .93rem; }
+  .deploy-steps .code { margin: 12px 0 0; }
+  @media (max-width: 820px) { .deploy-steps > li { padding-left: 46px; } }
+
+  /* ---------- 表格头 / 截图图集 ---------- */
+  thead th { color: var(--muted); font-weight: 600; font-size: .82rem; white-space: nowrap; }
+  td code { word-break: break-all; }
+  .card p + .code, .card .code + p { margin-top: 10px; }
+  figure { margin: 0; }
+  .grid > * { min-width: 0; }
+  .list-no li::before { content: "✕"; color: var(--warn-text); }
+  .list li > span { min-width: 0; }
+  .quick-grid { align-items: start; }
+  .shot-cap b { color: var(--text-soft); font-weight: 650; }
+  .code pre { white-space: pre; }
+  figure .shot { display: block; margin: 0; max-width: none; }
+  figure .shot-cap { text-align: center; }
+  .card ul + p, .card p + p { margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<!-- ==================== NAV ==================== -->
+<nav class="nav" id="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="#top">
+      <img src="/app-icon.png" alt="ConfigSSH 应用图标" width="30" height="30">
+      ConfigSSH
+    </a>
+    <div class="nav-actions">
+      <a class="nav-link" href="#features">功能</a>
+      <a class="nav-link" href="#quick">快速连接</a>
+      <a class="nav-link" href="#safety">安全</a>
+      <a class="nav-link" href="#download">下载</a>
+      <a class="lang-link" href="/en/" hreflang="en" lang="en" title="English">EN</a>
+      <a class="icon-btn" href="https://github.com/AlexWuYh/ConfigSSH" target="_blank" rel="noopener noreferrer"
+         aria-label="打开 ConfigSSH GitHub 仓库" title="GitHub 仓库">
+        <svg class="gh" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </a>
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="切换明暗主题">
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<header class="hero" id="top">
+  <div class="container">
+    <img class="hero-icon" src="/app-icon.png" alt="ConfigSSH 应用图标" width="84" height="84">
+    <div><span class="pill"><b>开源</b> · 原生 macOS · 本地优先 · 预览版</span></div>
+
+    <h1>ConfigSSH</h1>
+    <p class="tagline">可视化管理 SSH 配置，选中主机<strong>一键连接</strong>。</p>
+    <p class="desc">
+      直接读写你的 <code>~/.ssh/config</code>，不另建主机数据库。改动先预览差异、写入前自动备份，
+      连接交给你常用的终端；不用它时，<code>ssh</code>、<code>scp</code>、VS Code Remote 照常工作。
+    </p>
+
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#download">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        下载预览版
+      </a>
+      <a class="btn btn-ghost" href="https://github.com/AlexWuYh/ConfigSSH" target="_blank" rel="noopener noreferrer">查看源码</a>
+    </div>
+    <p class="hero-note"><a class="ver-badge" href="#changelog" data-latest-version hidden></a> macOS 14+ · Apple Silicon · MIT 开源</p>
+
+    <div class="shot">
+      <img src="/shot-hosts.png" alt="ConfigSSH 全部主机页面：左侧功能导航，中部按 Engineering 和 Personal 分组并高亮 api 主机，右侧是该主机的连接参数和部署公钥入口" width="1800" height="1260" fetchpriority="high">
+    </div>
+    <p class="shot-cap">全部主机（示例数据）：按分组浏览，右侧直接看到连接参数和配置原文。</p>
+  </div>
+</header>
+
+<!-- ==================== 这是什么 ==================== -->
+<section class="section" id="about">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">What it is</span>
+      <h2>配置还是你的，只是更好管理</h2>
+      <p class="section-desc">很多 SSH 客户端要把主机导入自己的数据库，之后在两套配置间来回同步。ConfigSSH 不这样做。</p>
+    </div>
+
+    <div class="card reveal" style="padding: 8px 12px;">
+      <table>
+        <tbody>
+          <tr><th>定位</th><td>原生 macOS SSH 配置管理器，直接读写 <code>~/.ssh/config</code> 和它 <code>Include</code> 的文件</td></tr>
+          <tr><th>改动</th><td>每次保存前展示逐行差异，写入前自动备份，随时可以恢复</td></tr>
+          <tr><th>连接</th><td>应用只把请求交给你的终端，登录仍由系统 OpenSSH 完成；不保存 SSH 密码</td></tr>
+          <tr><th>兼容</th><td>不用 ConfigSSH 时，<code>ssh</code>、<code>scp</code>、VS Code Remote 等工具照常使用同一份配置</td></tr>
+          <tr><th>技术</th><td>Swift / SwiftUI 原生应用，macOS 14 Sonoma 及以上，Apple Silicon，MIT 开源</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 功能 ==================== -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Features</span>
+      <h2>管理、编辑、连接，一个窗口搞定</h2>
+    </div>
+
+    <div class="grid grid-3">
+      <article class="card reveal" style="--d:0ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </div>
+        <h3>主机管理</h3>
+        <p>按分组浏览，支持搜索、收藏和折叠；可以创建空分组，也能在分组旁直接新增主机。</p>
+      </article>
+
+      <article class="card reveal" style="--d:90ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+        </div>
+        <h3>安全编辑</h3>
+        <p>用表单改 HostName、User、Port、IdentityFile、ProxyJump 等常用字段，或直接编辑 <code>config</code> 原文。保存前预览差异，写入前备份。</p>
+      </article>
+
+      <article class="card reveal" style="--d:180ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>
+        </div>
+        <h3>快速连接</h3>
+        <p>双击主机即连。在任何应用里按全局快捷键 <kbd>⌥⌘K</kbd>，或点菜单栏图标，搜索主机后直接打开终端。</p>
+      </article>
+
+      <article class="card reveal" style="--d:0ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        </div>
+        <h3>用你的终端</h3>
+        <p>自动识别 Terminal、Ghostty、Otty，其他终端可手动配置；可按主机选择新窗口或新标签页。</p>
+      </article>
+
+      <article class="card reveal" style="--d:90ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        </div>
+        <h3>密钥管理与部署公钥</h3>
+        <p>索引公钥并显示被哪些主机引用，可生成 Ed25519 / RSA 密钥。输入一次密码，向导就把公钥装到服务器并改用密钥登录。</p>
+      </article>
+
+      <article class="card reveal" style="--d:180ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><polyline points="3 3 3 8 8 8"/><polyline points="12 7 12 12 15 14"/></svg>
+        </div>
+        <h3>快照与恢复</h3>
+        <p>每次修改自动备份；默认每天为配置创建本机快照（可改每周或关闭），也能手动创建，预览差异后恢复。</p>
+      </article>
+
+      <article class="card reveal" style="--d:0ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+        </div>
+        <h3>iCloud 加密同步</h3>
+        <p>把配置加密后推送到 iCloud Drive，在另一台 Mac 预览差异后拉取。口令不上传，不同步私钥。</p>
+      </article>
+
+      <article class="card reveal" style="--d:90ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+        </div>
+        <h3>冲突不覆盖</h3>
+        <p>写入前再次核对文件版本；若期间被别的程序改动，应用保留对方的版本并提示冲突。</p>
+      </article>
+
+      <article class="card reveal" style="--d:180ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+        </div>
+        <h3>免费开源</h3>
+        <p>以 MIT 协议开源，Swift 编写，源码、测试和发布流程都在 GitHub 上。</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 使用方法 ==================== -->
+<section class="section" id="how">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">How it works</span>
+      <h2>三步用起来</h2>
+    </div>
+
+    <div class="grid grid-3 steps">
+      <div class="card step reveal" style="--d:0ms">
+        <h3>打开应用</h3>
+        <p>启动后读取 <code>~/.ssh/config</code> 及其 <code>Include</code> 文件，按来源目录自动分组。这一步只读取，不写入。</p>
+      </div>
+      <div class="card step reveal" style="--d:90ms">
+        <h3>新增或编辑主机</h3>
+        <p>填写别名、地址、用户名和端口，保存前先看差异，确认后才写入并备份。</p>
+      </div>
+      <div class="card step reveal" style="--d:180ms">
+        <h3>一键连接</h3>
+        <p>双击主机，或按 <kbd>⌥⌘K</kbd> 搜索，应用用你的终端打开 <code>ssh &lt;别名&gt;</code>。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 快速连接 ==================== -->
+<section class="section" id="quick">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Quick connect</span>
+      <h2>随时搜索，直接连接</h2>
+      <p class="section-desc">不必切到 ConfigSSH 主窗口。全局快捷键和菜单栏图标都能搜索主机并打开终端，焦点只在你选定主机之后才离开当前应用。</p>
+    </div>
+
+    <div class="grid grid-2 quick-grid">
+      <figure class="reveal" style="--d:0ms">
+        <a class="shot" href="/shot-quick.png" target="_blank" rel="noopener noreferrer"><img src="/shot-quick.png" alt="全局快捷键呼出的搜索框：输入 eng 后只列出 Engineering 分组的主机，底部写明将用 Ghostty 新窗口连接" width="1120" height="880" loading="lazy"></a>
+        <figcaption class="shot-cap"><b>全局快捷键</b> <kbd>⌥⌘K</kbd>：输入关键词筛选主机</figcaption>
+      </figure>
+      <figure class="reveal" style="--d:90ms">
+        <a class="shot" href="/shot-menubar.png" target="_blank" rel="noopener noreferrer"><img src="/shot-menubar.png" alt="菜单栏图标的下拉面板：未输入时按最近连接列出主机，显示地址、分组标签和默认终端" width="1040" height="824" loading="lazy"></a>
+        <figcaption class="shot-cap"><b>菜单栏图标</b>：点击后在下拉面板中搜索</figcaption>
+      </figure>
+    </div>
+
+    <div class="card reveal" style="margin-top: 16px; padding: 8px 12px; overflow-x: auto;">
+      <table>
+        <thead>
+          <tr><th>快捷键</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><kbd>⌥⌘K</kbd></td><td>在任何应用中呼出主机搜索框（可在设置里改成别的组合，或关闭）</td></tr>
+          <tr><td><kbd>⌘K</kbd></td><td>在主窗口中打开快速连接面板</td></tr>
+          <tr><td><kbd>↑</kbd> <kbd>↓</kbd> <kbd>↩</kbd></td><td>在搜索框中选择主机并连接；未输入时按最近连接排序</td></tr>
+          <tr><td><kbd>⌘↩</kbd></td><td>用新标签页打开选中的主机</td></tr>
+          <tr><td><kbd>⌘N</kbd></td><td>新增主机</td></tr>
+          <tr><td><kbd>⌘R</kbd></td><td>重新载入配置</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note reveal">搜索框支持别名、地址、用户名、显示名称、分组或标签的任意部分，多个关键词用空格分隔。全局快捷键只在 ConfigSSH 运行时有效，建议同时开启“登录时启动”。</p>
+  </div>
+</section>
+
+<!-- ==================== 配置文件如何保存 ==================== -->
+<section class="section" id="files">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">How files are kept</span>
+      <h2>配置文件如何保存</h2>
+      <p class="section-desc">分组就是子目录，每台新主机是一个独立文件；已有的配置不迁移，照常读取和显示。</p>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card reveal">
+        <h3 style="margin-top:0">目录结构</h3>
+        <div class="code" data-lang="text" data-title="~/.ssh"><pre>~/.ssh/
+├── config              ← 全局参数与 Include 入口
+└── config.d/
+    ├── api.conf        ← 未分组主机，一台一个文件
+    └── Work/           ← 分组 = 子目录
+        └── staging.conf</pre></div>
+      </div>
+
+      <div class="card reveal" style="--d:90ms">
+        <h3 style="margin-top:0">几个约定</h3>
+        <ul class="list">
+          <li><span><code>config</code> 只做入口：第一次新增主机时，应用在 <code>Host</code> 规则之前加入 <code>Include config.d/*.conf</code> 等两行，并在预览中展示。</span></li>
+          <li><span>已有的 <code>Host</code> 块照常读取和显示，应用不会把它们搬走。</span></li>
+          <li><span>删除分组前先预览，组内主机移到“未分组”；遇到同名文件或无法识别的内容就停止，不覆盖任何文件。</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-top: 16px;">
+      <figure class="reveal" style="--d:0ms">
+        <a class="shot" href="/shot-config.png" target="_blank" rel="noopener noreferrer"><img src="/shot-config.png" alt="全局配置页面：预览主 config 原文，显示主机、规则和已读取文件数量，并提供编辑入口" width="1800" height="1260" loading="lazy"></a>
+        <figcaption class="shot-cap"><b>全局配置</b>：查看主 <code>config</code> 原文，逐个查看 Include 文件</figcaption>
+      </figure>
+      <figure class="reveal" style="--d:90ms">
+        <a class="shot" href="/shot-keys.png" target="_blank" rel="noopener noreferrer"><img src="/shot-keys.png" alt="密钥页面：选中示例 Ed25519 公钥，右侧显示类型、指纹、文件路径、私钥存在状态和关联主机" width="1800" height="1260" loading="lazy"></a>
+        <figcaption class="shot-cap"><b>密钥</b>：查看指纹、引用关系，以及私钥是否存在</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 安全与隐私 ==================== -->
+<section class="section" id="safety">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Safety &amp; privacy</span>
+      <h2>安全与隐私</h2>
+      <p class="section-desc">它碰的是你的 SSH 配置，所以每一步都留了余地。</p>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card reveal">
+        <h3 style="margin-top:0">会做的</h3>
+        <ul class="list">
+          <li><span>写入前展示逐行差异，并保存备份（默认保留最近 50 条，可调整）。</span></li>
+          <li><span>写入前再次核对文件版本，被别的程序改动时保留对方版本并提示冲突。</span></li>
+          <li><span>原子方式替换文件，拒绝写入符号链接或 <code>~/.ssh</code> 之外的路径。</span></li>
+          <li><span>索引密钥时只读取 <code>.pub</code> 公钥文件。</span></li>
+        </ul>
+      </div>
+
+      <div class="card reveal" style="--d:90ms">
+        <h3 style="margin-top:0">不会做的</h3>
+        <ul class="list list-no">
+          <li><span>不保存 SSH 密码，日常使用不会把私钥内容读进应用。</span></li>
+          <li><span>不会自动运行 <code>ssh -G</code>，因为 <code>Match exec</code> 可能执行本机命令。</span></li>
+          <li><span>不会用简化表单改写无法安全定位的复杂配置，这类主机保持只读。</span></li>
+          <li><span>不会把私钥上传到 iCloud。</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="callout reveal" style="margin-top: 16px;"><b>本机快照不额外加密：</b>手动快照默认只含配置文件。若要在快照中包含私钥，必须单次确认并逐个勾选；能访问快照文件的人可能拿到私钥，建议先为私钥设置口令。</p>
+  </div>
+</section>
+
+<!-- ==================== iCloud 同步 ==================== -->
+<section class="section" id="sync">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">iCloud sync</span>
+      <h2>iCloud 加密同步</h2>
+      <p class="section-desc">在多台 Mac 之间共享同一份 SSH 配置，需要时才开。</p>
+    </div>
+
+    <div class="grid grid-3">
+      <article class="card reveal" style="--d:0ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>本机加密</h3>
+        <p>内容在本机用 AES-GCM 加密，密钥由你设定的共享口令派生（至少 12 个字符）。口令不会上传。</p>
+      </article>
+      <article class="card reveal" style="--d:90ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>每台 Mac 一个文件</h3>
+        <p>每台设备在 iCloud Drive 中有独立的 <code>Devices/&lt;设备ID&gt;.cssh</code>，彼此不会覆盖。</p>
+      </article>
+      <article class="card reveal" style="--d:180ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <h3>先预览再拉取</h3>
+        <p>推送和拉取都先看文件数量与逐文件差异；拉取只覆盖同路径的文件，并先备份。只同步 <code>config</code> 和 <code>config.d/</code> 下的 <code>.conf</code>。</p>
+      </article>
+    </div>
+
+    <p class="note reveal"><b>注意：</b>应用只能确认文件已写入本机的 iCloud Drive 目录，无法确认已上传到云端，请在 Finder 中查看同步状态。口令丢失后，云端配置无法解密。不同 Mac 的绝对路径和 <code>IdentityFile</code> 位置可能不同，拉取后请检查。</p>
+  </div>
+</section>
+
+<!-- ==================== 下载 ==================== -->
+<section class="section" id="download">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Download</span>
+      <h2>下载与安装</h2>
+      <p class="section-desc">需要 macOS 14 Sonoma 或更新版本、Apple Silicon（arm64）。连接时使用系统自带的 OpenSSH。</p>
+    </div>
+
+    <p class="callout reveal" style="margin-bottom: 16px;"><b>预览版：</b>预发布包没有签名，也没有公证，只适合个人预览，请不要再分发给他人。第一次打开时 macOS 会提示无法验证开发者。</p>
+
+    <div class="grid grid-2">
+      <div class="card dl-card reveal">
+        <h3 style="margin-top:0">下载预发布包 <span class="tag">推荐</span></h3>
+        <p>在 Releases 页面下载 <code>ConfigSSH-vX.Y.Z-unsigned-macos-arm64.zip</code> 和 <code>SHA256SUMS.txt</code>，放在同一目录后校验：</p>
+        <div class="code" data-lang="bash" data-title="Terminal"><pre>shasum -a 256 -c SHA256SUMS.txt</pre></div>
+        <p>解压后把 <code>ConfigSSH.app</code> 拖入“应用程序”。第一次打开时，到“系统设置 › 隐私与安全性”，在页面下方点击“仍要打开”。</p>
+        <a class="btn btn-primary" href="https://github.com/AlexWuYh/ConfigSSH/releases" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          前往 Releases
+        </a>
+      </div>
+
+      <div class="card dl-card reveal" style="--d:90ms">
+        <h3 style="margin-top:0">从源码构建</h3>
+        <p>需要 Swift 6 工具链。直接运行，或打包成可放进“应用程序”的 <code>.app</code>：</p>
+        <div class="code" data-lang="bash" data-title="Terminal"><pre>git clone https://github.com/AlexWuYh/ConfigSSH.git
+cd ConfigSSH
+swift run ConfigSSH
+
+# 打包成 .app
+./scripts/package-macos.sh
+open dist/ConfigSSH.app</pre></div>
+        <a class="btn btn-ghost" href="https://github.com/AlexWuYh/ConfigSSH" target="_blank" rel="noopener noreferrer">查看源码</a>
+      </div>
+    </div>
+
+    <div class="card reveal" style="margin-top: 16px; padding: 8px 12px;">
+      <table>
+        <tbody>
+          <tr><th>终端权限</th><td>第一次用 Terminal 或 Ghostty 启动时，macOS 会请求“自动化”权限，请选择允许</td></tr>
+          <tr><th>连接没反应</th><td>检查“系统设置 › 隐私与安全性 › 自动化”，并在应用“设置 › 终端”里查看该终端的检测状态；自定义终端要用 CLI 的绝对路径，参数里包含 <code>{alias}</code> 或 <code>{ssh}</code></td></tr>
+          <tr><th>改错了</th><td>“设置 › 配置与备份”里找到对应变更记录选择恢复，恢复前同样展示差异</td></tr>
+          <tr><th>已知限制</th><td>全文编辑的静态检查不能保证所有 OpenSSH 参数在当前系统上有效；目前只提供 Apple Silicon 版本</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CTA ==================== -->
+<section class="cta">
+  <div class="container reveal">
+    <h2>把 SSH 配置管得清清楚楚</h2>
+    <p>免费、开源，配置始终在你自己的 Mac 上。</p>
+    <div class="hero-actions" style="margin-top:0">
+      <a class="btn btn-primary" href="#download">下载预览版</a>
+      <a class="btn btn-ghost" href="https://github.com/AlexWuYh/ConfigSSH" target="_blank" rel="noopener noreferrer">查看源码</a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <div class="container">
+    <p>
+      ConfigSSH 是开源项目（MIT） ·
+      <a href="https://github.com/AlexWuYh/ConfigSSH" target="_blank" rel="noopener noreferrer">GitHub 仓库</a> ·
+      <a href="https://github.com/AlexWuYh/ConfigSSH/releases" target="_blank" rel="noopener noreferrer">发布页面</a>
+    </p>
+    <p>本站截图均来自用临时脱敏配置运行的真实应用，<code>api.example.net</code>、<code>192.0.2.21</code> 等是示例地址。</p>
+    <div class="footer-meta">
+    <p class="author-wrap">
+      <a class="author-link" href="https://github.com/AlexWuYh" target="_blank" rel="noopener noreferrer"
+         aria-label="作者 AlexWuYh，打开 GitHub 个人主页" title="GitHub 个人主页">
+        <img src="/author-avatar.jpg" alt="" width="24" height="24" loading="lazy">
+        <span>作者 <b>AlexWuYh</b></span>
+      </a>
+    </p>
+    <!-- friends:start -->
+    <p class="friends">
+      <span class="friends-label">友情链接</span>
+      <a href="https://screenclock.wuewa.cn/" target="_blank" rel="noopener" title="Android 全屏床头 / 桌面时钟">ScreenClock</a>
+      <a href="https://dicomflow.wuewa.cn/" target="_blank" rel="noopener" title="CT / MRI 片子转 MP4 / GIF">DicomFlow</a>
+      <a href="https://jot.wuewa.cn/" target="_blank" rel="noopener" title="本地优先的碎片笔记，AI 周期总结">Jot</a>
+      <a href="https://edp.wuewa.cn/" target="_blank" rel="noopener" title="多上游 Docker 镜像加速代理，零镜像缓存">easy-docker-proxy</a>
+      <a href="https://jba.wuewa.cn/" target="_blank" rel="noopener" title="Jenkins 构建元数据归档，长期追溯 Git 与镜像">Jenkins Build Archive</a>
+    </p>
+    <!-- friends:end -->
+    </div>
+  </div>
+</footer>
+
+<script src="/releases.js" data-repo="AlexWuYh/ConfigSSH" defer></script>
+
+<script>
+(function () {
+  'use strict';
+
+  var root = document.documentElement;
+  var en = (root.lang || '').toLowerCase().indexOf('en') === 0;
+  var toggle = document.getElementById('themeToggle');
+
+  function applyTheme(theme, persist) {
+    root.dataset.theme = theme;
+    toggle.setAttribute('aria-label', theme === 'dark' ? '切换到亮色主题' : '切换到暗色主题');
+    if (persist) {
+      try { localStorage.setItem('cssh-theme', theme); } catch (e) {}
+    }
+  }
+  applyTheme(root.dataset.theme || 'light', false);
+  toggle.addEventListener('click', function () {
+    applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark', true);
+  });
+
+  // 代码块：Mac 窗口外观 + 语法高亮 + 复制按钮（高亮用内置的轻量规则，不依赖外部库）
+  function esc(t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function sp(c, t) { return '<span class="tk-' + c + '">' + esc(t) + '</span>'; }
+  var VAR = /(\$\{[^}]*\}|\$\([^)]*\)|\$[A-Za-z_]\w*)/;
+
+  // 找行内注释：不在引号里，且 # 在行首或空白之后
+  function commentAt(line) {
+    var q = null;
+    for (var i = 0; i < line.length; i++) {
+      var c = line.charAt(i);
+      if (q) { if (c === '\\' && q === '"') i++; else if (c === q) q = null; }
+      else if (c === '"' || c === "'") q = c;
+      else if (c === '#' && (i === 0 || /\s/.test(line.charAt(i - 1)))) return i;
+    }
+    return -1;
+  }
+  function str(t) {
+    return '<span class="tk-str">' + t.split(VAR).map(function (p, i) {
+      return i % 2 ? '</span>' + sp('var', p) + '<span class="tk-str">' : esc(p);
+    }).join('') + '</span>';
+  }
+
+  function hlBash(text) {
+    var cont = false;
+    return text.split('\n').map(function (line) {
+      var ci = commentAt(line), code = ci < 0 ? line : line.slice(0, ci), cm = ci < 0 ? '' : sp('cmt', line.slice(ci));
+      var expectCmd = !cont, out = '', m;
+      var re = /("(?:\\.|[^"\\])*"|'[^']*')|(\$\{[^}]*\}|\$\([^)]*\)|\$[A-Za-z_]\w*)|(&&|\|\||[|;>])|(\\$)|(-{1,2}[A-Za-z][\w.-]*)|([^\s"'$|&;>\\]+)|(\s+)|([\s\S])/g;
+      while ((m = re.exec(code))) {
+        if (m[1]) out += str(m[1]);
+        else if (m[2]) out += sp('var', m[2]);
+        else if (m[3]) { out += sp('op', m[3]); expectCmd = m[3] !== '>'; }
+        else if (m[4]) out += sp('op', m[4]);
+        else if (m[5]) out += sp('flag', m[5]);
+        else if (m[6]) {
+          if (/^[A-Z_][A-Z0-9_]*=$/.test(m[6])) out += sp('var', m[6]);
+          else if (expectCmd) { out += sp('cmd', m[6]); expectCmd = false; }
+          else if (/^\d+(\.\d+)*$/.test(m[6])) out += sp('num', m[6]);
+          else out += esc(m[6]);
+        } else out += esc(m[0]);
+      }
+      cont = /\\\s*$/.test(code);
+      return out + cm;
+    }).join('\n');
+  }
+
+  function hlJson(text) {
+    return text.replace(/("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?|([{}\[\],:])|([\s\S])/g,
+      function (m, s, colon, kw, p, other) {
+        if (s) return colon ? sp('key', s) + esc(colon) : sp('str', s);
+        if (kw) return sp('kw', kw);
+        if (p) return esc(p);
+        if (other) return esc(other);
+        return sp('num', m);
+      });
+  }
+
+  function hlYamlValue(v) {
+    return v.replace(/("(?:\\.|[^"\\])*"|'[^']*')|\b(true|false|null)\b|(\b\d+\b)|([\s\S])/g,
+      function (m, s, kw, n, other) {
+        if (s) return sp('str', s);
+        if (kw) return sp('kw', kw);
+        if (n) return sp('num', n);
+        return esc(other);
+      });
+  }
+  function hlYaml(text) {
+    return text.split('\n').map(function (line) {
+      var ci = commentAt(line), code = ci < 0 ? line : line.slice(0, ci), cm = ci < 0 ? '' : sp('cmt', line.slice(ci));
+      var m = /^(\s*(?:-\s+)?)([A-Za-z_][\w.-]*)(:)(.*)$/.exec(code);
+      if (m) return esc(m[1]) + sp('key', m[2]) + esc(m[3]) + hlYamlValue(m[4]) + cm;
+      m = /^(\s*-\s+)(.*)$/.exec(code);
+      if (m) return esc(m[1]) + hlYamlValue(m[2]) + cm;
+      return esc(code) + cm;
+    }).join('\n');
+  }
+
+  var HL = { bash: hlBash, json: hlJson, yaml: hlYaml };
+  function enhance(root) {
+  [].forEach.call(root.querySelectorAll('.code, .cl-code'), function (box) {
+    if (box.getAttribute('data-enhanced')) return;
+    box.setAttribute('data-enhanced', '1');
+    box.classList.add('code');
+    var pre = box.querySelector('pre');
+    var raw = pre.textContent.replace(/\n$/, '');
+    var fn = HL[box.getAttribute('data-lang')];
+    if (fn) pre.innerHTML = fn(raw);
+
+    var bar = document.createElement('div');
+    bar.className = 'code-bar';
+    bar.innerHTML = '<span class="code-dots" aria-hidden="true"><i></i><i></i><i></i></span>' +
+      '<span class="code-title">' + esc(box.getAttribute('data-title') || '') + '</span>';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = en ? 'Copy' : '复制';
+    btn.addEventListener('click', function () {
+      var done = function () {
+        btn.textContent = en ? 'Copied' : '已复制';
+        setTimeout(function () { btn.textContent = en ? 'Copy' : '复制'; }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(raw).then(done, function () {});
+      }
+    });
+    bar.appendChild(btn);
+    box.insertBefore(bar, pre);
+  });
+  }
+  window.edpEnhanceCode = enhance;  // 更新日志渲染后也会调用
+  enhance(document);
+
+  var reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' });
+    reveals.forEach(function (el) { io.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  var nav = document.getElementById('nav');
+  function onScroll() { nav.classList.toggle('scrolled', window.scrollY > 8); }
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
+</script>
+
+</body>
+</html>

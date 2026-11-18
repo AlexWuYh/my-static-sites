@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://configssh.wuewa.cn/sitemap.xml

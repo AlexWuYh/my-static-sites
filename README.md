@@ -23,6 +23,7 @@ my-static-sites/
 | [`Jot/`](./Jot) | Jot（简迹） | 本地优先的碎片笔记 + AI 周期总结，支持 Windows / macOS / Android，中英文双语 |
 | [`easy-docker-proxy/`](./easy-docker-proxy) | easy-docker-proxy（EDP） | 多上游 Docker Registry 加速代理（零镜像缓存、内置拉取统计），中英文双语，域名 `edp.wuewa.cn` |
 | [`jenkins-build-archive/`](./jenkins-build-archive) | Jenkins Build Archive | 独立于 Jenkins 的构建元数据归档服务（Git / Commit / 镜像 Digest 长期追溯），中英文双语，域名 `jba.wuewa.cn` |
+| [`ConfigSSH/`](./ConfigSSH) | ConfigSSH | 原生 macOS SSH 配置管理器（可视化编辑 `~/.ssh/config`，一键连接），中英文双语，域名 `configssh.wuewa.cn` |
 
 ## 新增产品
 
@@ -46,6 +47,7 @@ my-static-sites/
   | Jot | `Jot/index.html` | `scripts/jot_gen_en.py` |
   | easy-docker-proxy | `easy-docker-proxy/index.html` | `scripts/edp_gen_en.py` |
   | Jenkins Build Archive | `jenkins-build-archive/index.html` | `scripts/jba_gen_en.py` |
+  | ConfigSSH | `ConfigSSH/index.html` | `scripts/configssh_gen_en.py` |
 
 - 手动运行：`python3 scripts/<脚本名>.py`。
 - 自动同步：仓库自带 `pre-commit` 钩子（`.githooks/`），提交中包含上表中的中文页时，会自动重新生成并一并提交对应的英文页。克隆仓库后需启用一次：
