@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ConfigSSH — macOS SSH 配置管理器 · 可视化编辑 ~/.ssh/config · 一键连接 · 开源免费</title>
-<meta name="description" content="ConfigSSH 是原生 macOS 应用：可视化管理 ~/.ssh/config，保存前预览差异、写入前自动备份，选中主机后一键交给 Terminal、Ghostty 等终端连接。本地优先，不保存 SSH 密码，支持 iCloud 加密同步。MIT 开源。">
+<meta name="description" content="ConfigSSH 是原生 macOS 应用：可视化管理 ~/.ssh/config，保存前预览差异、写入前自动备份，选中主机后一键交给 Terminal、Ghostty 等终端连接。本地优先，不保存 SSH 密码，支持加密备份、导入导出和 iCloud 同步。MIT 开源。">
 <meta name="keywords" content="SSH 配置管理, ssh config, macOS SSH 客户端, SSH 主机管理, 部署公钥, SSH 密钥管理, Ghostty, iCloud 同步, ConfigSSH">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://configssh.wuewa.cn/">
@@ -403,6 +403,7 @@
       <a class="nav-link" href="#features">功能</a>
       <a class="nav-link" href="#quick">快速连接</a>
       <a class="nav-link" href="#safety">安全</a>
+      <a class="nav-link" href="#backup">备份</a>
       <a class="nav-link" href="#download">下载</a>
       <a class="lang-link" href="/en/" hreflang="en" lang="en" title="English">EN</a>
       <a class="icon-btn" href="https://github.com/AlexWuYh/ConfigSSH" target="_blank" rel="noopener noreferrer"
@@ -494,7 +495,7 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
         </div>
         <h3>主机管理</h3>
-        <p>按分组浏览，支持搜索、收藏和折叠；可以创建空分组，也能在分组旁直接新增主机。</p>
+        <p>按分组浏览，支持搜索、收藏和折叠。新增时每个字段都标明必填/选填，有说明和示例，填错立即提示；还能给主机起一个中文的显示名称。</p>
       </article>
 
       <article class="card reveal" style="--d:90ms">
@@ -533,32 +534,32 @@
         <div class="card-icon">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><polyline points="3 3 3 8 8 8"/><polyline points="12 7 12 12 15 14"/></svg>
         </div>
-        <h3>快照与恢复</h3>
-        <p>每次修改自动备份；默认每天为配置创建本机快照（可改每周或关闭），也能手动创建，预览差异后恢复。</p>
+        <h3>加密备份与恢复</h3>
+        <p>每次修改前自动备份被改的文件。设一个备份口令后，本机快照和 iCloud 副本都加密；一个总开关管理自动备份，恢复前先预览差异。</p>
       </article>
 
       <article class="card reveal" style="--d:0ms">
         <div class="card-icon">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
         </div>
-        <h3>iCloud 加密同步</h3>
-        <p>把配置加密后推送到 iCloud Drive，在另一台 Mac 预览差异后拉取。口令不上传，不同步私钥。</p>
+        <h3>iCloud 同步</h3>
+        <p>配置有变更，几秒内就把加密副本同步到 iCloud Drive；在另一台 Mac 的“云端设备”里预览差异后拉取。始终加密，不上传私钥。</p>
       </article>
 
       <article class="card reveal" style="--d:90ms">
         <div class="card-icon">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         </div>
-        <h3>冲突不覆盖</h3>
-        <p>写入前再次核对文件版本；若期间被别的程序改动，应用保留对方的版本并提示冲突。</p>
+        <h3>导入与导出</h3>
+        <p>把主机配置导出为 .zip，或设口令导出为加密的 .cssh 文件；导入时先验证口令，再逐文件预览差异。不含私钥。</p>
       </article>
 
       <article class="card reveal" style="--d:180ms">
         <div class="card-icon">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
         </div>
-        <h3>免费开源</h3>
-        <p>以 MIT 协议开源，Swift 编写，源码、测试和发布流程都在 GitHub 上。</p>
+        <h3>启动与更新</h3>
+        <p>可选的开机自启（默认关闭），让全局快捷键随时可用；关于页提供官方网站、GitHub 链接和检查更新。</p>
       </article>
     </div>
   </div>
@@ -624,7 +625,7 @@
         </tbody>
       </table>
     </div>
-    <p class="note reveal">搜索框支持别名、地址、用户名、显示名称、分组或标签的任意部分，多个关键词用空格分隔。全局快捷键只在 ConfigSSH 运行时有效，建议同时开启“登录时启动”。</p>
+    <p class="note reveal">搜索框支持别名、地址、用户名、显示名称、分组或标签的任意部分，多个关键词用空格分隔。全局快捷键只在 ConfigSSH 运行时有效，建议同时开启“开机自启”。</p>
   </div>
 </section>
 
@@ -653,6 +654,7 @@
         <ul class="list">
           <li><span><code>config</code> 只做入口：第一次新增主机时，应用在 <code>Host</code> 规则之前加入 <code>Include config.d/*.conf</code> 等两行，并在预览中展示。</span></li>
           <li><span>已有的 <code>Host</code> 块照常读取和显示，应用不会把它们搬走。</span></li>
+          <li><span>主机可以有中文的“显示名称”，配置文件也以它命名，例如“生产环境 API”会保存为 <code>config.d/Engineering/生产环境 API.conf</code>，表单里会实时显示“将保存为”的路径。</span></li>
           <li><span>删除分组前先预览，组内主机移到“未分组”；遇到同名文件或无法识别的内容就停止，不覆盖任何文件。</span></li>
         </ul>
       </div>
@@ -697,12 +699,97 @@
           <li><span>不保存 SSH 密码，日常使用不会把私钥内容读进应用。</span></li>
           <li><span>不会自动运行 <code>ssh -G</code>，因为 <code>Match exec</code> 可能执行本机命令。</span></li>
           <li><span>不会用简化表单改写无法安全定位的复杂配置，这类主机保持只读。</span></li>
-          <li><span>不会把私钥上传到 iCloud。</span></li>
+          <li><span>不会把私钥上传到 iCloud，也不会把私钥放进任何快照或备份。</span></li>
         </ul>
       </div>
     </div>
 
-    <p class="callout reveal" style="margin-top: 16px;"><b>本机快照不额外加密：</b>手动快照默认只含配置文件。若要在快照中包含私钥，必须单次确认并逐个勾选；能访问快照文件的人可能拿到私钥，建议先为私钥设置口令。</p>
+    <p class="callout reveal" style="margin-top: 16px;"><b>本机快照默认加密：</b>需要先设置备份口令。你可以在设置里改成不加密，这时快照里是配置原文（主机地址、用户名、端口和密钥路径），任何能读到文件的人都看得到，所以会先做风险确认，并一直标出“本机快照未加密”。</p>
+  </div>
+</section>
+
+<!-- ==================== 备份与恢复 ==================== -->
+<section class="section" id="backup">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Backup &amp; restore</span>
+      <h2>备份与恢复</h2>
+      <p class="section-desc">在“设置 › 备份”里：状态、备份口令、自动备份，从上到下一目了然。</p>
+    </div>
+
+    <div class="grid grid-2 quick-grid">
+      <figure class="reveal" style="--d:0ms">
+        <a class="shot" href="/shot-backup.png" target="_blank" rel="noopener noreferrer"><img src="/shot-backup.png" alt="设置里的备份页：顶部状态卡显示自动备份已开启以及本机快照和 iCloud 同步的最近时间，下方依次是本机快照加密选项、备份口令和自动备份开关" width="1400" height="1360" loading="lazy"></a>
+        <figcaption class="shot-cap"><b>备份页</b>：状态、口令与自动备份开关</figcaption>
+      </figure>
+      <figure class="reveal" style="--d:90ms">
+        <a class="shot" href="/shot-restore.png" target="_blank" rel="noopener noreferrer"><img src="/shot-restore.png" alt="浏览与恢复窗口：左侧分为加密快照和未加密快照两组，右侧列出选中快照包含的配置文件和恢复按钮" width="1800" height="1360" loading="lazy"></a>
+        <figcaption class="shot-cap"><b>浏览与恢复</b>：加密与未加密快照分组列出</figcaption>
+      </figure>
+    </div>
+
+    <div class="grid grid-3" style="margin-top: 16px;">
+      <article class="card reveal" style="--d:0ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        </div>
+        <h3>先设备份口令</h3>
+        <p>至少 12 个字符。加密的本机快照和 iCloud 副本都用它，它保存在这台 Mac 的钥匙串里，不会上传；丢失后无法找回这些备份。每次运行最多读取一次钥匙串，第一次选“始终允许”即可。</p>
+      </article>
+      <article class="card reveal" style="--d:90ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>本机快照</h3>
+        <p>默认加密保存 <code>config</code> 和 Include 文件，也可改成不加密（有风险确认）。最小粒度是每天一次，配置没变化就跳过；默认保留最近 14 份自动快照，不动你手动创建的快照。</p>
+      </article>
+      <article class="card reveal" style="--d:180ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+        </div>
+        <h3>同步到 iCloud</h3>
+        <p>配置每有变更，几秒内就上传这台 Mac 的加密副本；连续保存多台主机只上传一次。也可以随时点“立即备份”。</p>
+      </article>
+    </div>
+
+    <p class="note reveal"><b>浏览与恢复：</b>点“浏览与恢复…”，选中加密快照会用已保存的口令自动解锁并列出文件；点“恢复这份快照…”后先看逐行差异，确认才写入。恢复只写回配置文件，不恢复私钥，也不删除快照之后新增的文件。没有设置口令时，加密快照和 iCloud 同步都不会运行。</p>
+    <p class="callout reveal" style="margin-top: 16px;"><b>快照只含配置文件，永远不含私钥。</b>私钥请用你自己的方式备份。</p>
+  </div>
+</section>
+
+<!-- ==================== 导入与导出 ==================== -->
+<section class="section" id="transfer">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Import &amp; export</span>
+      <h2>导入与导出</h2>
+      <p class="section-desc">把主机配置带到另一台 Mac，或者发给同事。入口在“设置 › 备份 › 导入与导出”。</p>
+    </div>
+
+    <div class="grid grid-2 quick-grid">
+      <figure class="reveal" style="--d:0ms">
+        <a class="shot" href="/shot-export.png" target="_blank" rel="noopener noreferrer"><img src="/shot-export.png" alt="导出主机配置弹窗：可在压缩包 .zip 和加密文件 .cssh 之间切换，选择压缩包时显示“压缩包没有加密”的橙色提醒" width="1400" height="1360" loading="lazy"></a>
+        <figcaption class="shot-cap"><b>导出</b>：压缩包不加密，加密文件需要口令</figcaption>
+      </figure>
+      <div class="card reveal" style="--d:90ms">
+        <h3 style="margin-top:0">导出</h3>
+        <p>点“导出主机配置…”，选一种格式：</p>
+        <ul class="list">
+          <li><span><b>压缩包 .zip</b>（默认）：<code>config</code> 和 <code>config.d/</code> 下的配置文件，外加校验清单。没有加密，任何人拿到都能看到主机地址和用户名。</span></li>
+          <li><span><b>加密文件 .cssh</b>：为这个文件单独设一个口令（至少 12 个字符），用 AES-GCM 加密；口令丢失后无法恢复内容。</span></li>
+        </ul>
+        <p>两种格式都不含私钥；<code>~/.ssh</code> 之外的 Include 文件不会导出，完成时会告诉你跳过了几个。</p>
+        <h3>导入</h3>
+        <ul class="list">
+          <li><span>加密文件先要口令，验证通过后才显示内容；口令不对或文件被改动都会直接报错，不写入任何东西。</span></li>
+          <li><span>ConfigSSH 导出的 zip 会逐个文件核对校验清单，被改动的会被拒绝；用 Finder 压缩或手工打包的 zip 也能导入，但没有校验清单，要自己核对差异。</span></li>
+          <li><span>默认只导入主机文件，保留你现在的主配置；想连全局设置一起换掉，勾选“同时覆盖当前的主配置 config”。</span></li>
+          <li><span>点“预览变更…”逐个文件看差异再确认。只新增或覆盖同路径的文件，不删除其他文件，覆盖前先备份；包含密钥、<code>known_hosts</code> 等保留名称或路径穿越（<code>../</code>）的文件会被拒绝。</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="note reveal"><b>导入后看不到主机？</b>如果你现在的主配置里没有 <code>Include config.d/*.conf</code>，导入的主机暂时不会显示。导入完成后会提醒你，可以手动加上 Include，或重新导入并勾选覆盖主配置。</p>
   </div>
 </section>
 
@@ -721,7 +808,7 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </div>
         <h3>本机加密</h3>
-        <p>内容在本机用 AES-GCM 加密，密钥由你设定的共享口令派生（至少 12 个字符）。口令不会上传。</p>
+        <p>内容在本机用 AES-GCM 加密，密钥由备份口令派生。口令不上传，所有 Mac 使用同一个口令。</p>
       </article>
       <article class="card reveal" style="--d:90ms">
         <div class="card-icon">
@@ -735,11 +822,16 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </div>
         <h3>先预览再拉取</h3>
-        <p>推送和拉取都先看文件数量与逐文件差异；拉取只覆盖同路径的文件，并先备份。只同步 <code>config</code> 和 <code>config.d/</code> 下的 <code>.conf</code>。</p>
+        <p>在另一台 Mac 的“云端设备与拉取”里选一台设备，逐文件看差异后再确认；拉取只覆盖同路径的文件，并先备份。只同步 <code>config</code> 和 <code>config.d/</code> 下的 <code>.conf</code>。</p>
       </article>
     </div>
 
-    <p class="note reveal"><b>注意：</b>应用只能确认文件已写入本机的 iCloud Drive 目录，无法确认已上传到云端，请在 Finder 中查看同步状态。口令丢失后，云端配置无法解密。不同 Mac 的绝对路径和 <code>IdentityFile</code> 位置可能不同，拉取后请检查。</p>
+    <figure class="reveal" style="max-width: 620px; margin: 16px auto 0;">
+      <a class="shot" href="/shot-cloud.png" target="_blank" rel="noopener noreferrer"><img src="/shot-cloud.png" alt="云端设备页：列出两台示例 Mac 的设备名、上次上传时间和文件数，这台 Mac 带标记，下方是预览拉取按钮" width="1400" height="1360" loading="lazy"></a>
+      <figcaption class="shot-cap"><b>云端设备</b>：每台上传过的 Mac 的设备名、上次上传时间和文件数</figcaption>
+    </figure>
+
+    <p class="note reveal"><b>注意：</b>应用只能确认文件已写入本机的 iCloud Drive 目录，无法确认已上传到云端，请在 Finder 中查看同步状态。口令丢失后，云端配置无法解密。不同 Mac 的绝对路径和 <code>IdentityFile</code> 位置可能不同，拉取后请检查。位于 <code>~/.ssh</code> 之外的 Include 文件不会上传，需要在设置里勾选允许云端副本不含它们，否则自动同步会暂停。更换口令后，若这台 Mac 原来的云端文件无法解密，自动同步会停下而不会覆盖，要你在“云端设备与拉取”里单独确认。</p>
   </div>
 </section>
 
@@ -785,8 +877,10 @@ open dist/ConfigSSH.app</pre></div>
         <tbody>
           <tr><th>终端权限</th><td>第一次用 Terminal 或 Ghostty 启动时，macOS 会请求“自动化”权限，请选择允许</td></tr>
           <tr><th>连接没反应</th><td>检查“系统设置 › 隐私与安全性 › 自动化”，并在应用“设置 › 终端”里查看该终端的检测状态；自定义终端要用 CLI 的绝对路径，参数里包含 <code>{alias}</code> 或 <code>{ssh}</code></td></tr>
-          <tr><th>改错了</th><td>“设置 › 配置与备份”里找到对应变更记录选择恢复，恢复前同样展示差异</td></tr>
-          <tr><th>已知限制</th><td>全文编辑的静态检查不能保证所有 OpenSSH 参数在当前系统上有效；目前只提供 Apple Silicon 版本</td></tr>
+          <tr><th>改错了</th><td>每次修改前，被改的文件都会自动备份：在侧栏“变更记录”里找到那一条恢复；要回到更早的整体状态，用“设置 › 备份 › 浏览与恢复”恢复快照。恢复前都会先展示差异</td></tr>
+          <tr><th>忘了备份口令</th><td>口令只在这台 Mac 的钥匙串里，没有后门，无法找回；用它加密的快照和 iCloud 副本会打不开，但你的实际配置文件不受影响。可以在“设置 › 备份”里移除旧口令、设置新口令</td></tr>
+          <tr><th>导入后没有主机</th><td>导入默认只写主机文件、保留你现在的主配置；主配置里没有 <code>Include config.d/*.conf</code> 时这些主机不会显示。可以手动加上 Include，或重新导入并勾选“同时覆盖当前的主配置”</td></tr>
+          <tr><th>已知限制</th><td>全文编辑的静态检查不能保证所有 OpenSSH 参数在当前系统上有效；目前只提供 Apple Silicon 版本；“部署公钥”不支持只允许 SFTP 的服务器；iCloud 同步只能确认写入了本机的 iCloud Drive 目录，多台 Mac 之间的真实同步尚未做完整验收；未签名时，钥匙串授权也可能在更新后再次询问</td></tr>
         </tbody>
       </table>
     </div>
@@ -813,7 +907,7 @@ open dist/ConfigSSH.app</pre></div>
       <a href="https://github.com/AlexWuYh/ConfigSSH" target="_blank" rel="noopener noreferrer">GitHub 仓库</a> ·
       <a href="https://github.com/AlexWuYh/ConfigSSH/releases" target="_blank" rel="noopener noreferrer">发布页面</a>
     </p>
-    <p>本站截图均来自用临时脱敏配置运行的真实应用，<code>api.example.net</code>、<code>192.0.2.21</code> 等是示例地址。</p>
+    <p>本站截图均来自用临时脱敏配置和 /tmp 夹具运行的真实应用，快照和云端设备文件是为截图生成的示例数据，<code>api.example.net</code>、<code>192.0.2.21</code> 等是示例地址。</p>
     <div class="footer-meta">
     <p class="author-wrap">
       <a class="author-link" href="https://github.com/AlexWuYh" target="_blank" rel="noopener noreferrer"

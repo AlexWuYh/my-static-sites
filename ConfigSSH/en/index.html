@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ConfigSSH — macOS SSH Config Manager · Edit ~/.ssh/config Visually · One-Click Connect · Free and Open Source</title>
-<meta name="description" content="ConfigSSH is a native macOS app that manages ~/.ssh/config visually: it previews a diff before saving, backs up before writing, and hands the selected host to Terminal, Ghostty or your own terminal in one click. Local-first, never stores SSH passwords, with encrypted iCloud sync. MIT licensed.">
+<meta name="description" content="ConfigSSH is a native macOS app that manages ~/.ssh/config visually: it previews a diff before saving, backs up before writing, and hands the selected host to Terminal, Ghostty or your own terminal in one click. Local-first, never stores SSH passwords, with encrypted backups, import/export and iCloud sync. MIT licensed.">
 <meta name="keywords" content="SSH config manager, ssh config, macOS SSH client, SSH host manager, deploy public key, SSH key management, Ghostty, iCloud sync, ConfigSSH">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://configssh.wuewa.cn/en/">
@@ -403,6 +403,7 @@
       <a class="nav-link" href="#features">Features</a>
       <a class="nav-link" href="#quick">Quick connect</a>
       <a class="nav-link" href="#safety">Safety</a>
+      <a class="nav-link" href="#backup">Backup</a>
       <a class="nav-link" href="#download">Download</a>
       <a class="lang-link" href="/" hreflang="zh-CN" lang="zh-CN" title="简体中文">中文</a>
       <a class="icon-btn" href="https://github.com/AlexWuYh/ConfigSSH" target="_blank" rel="noopener noreferrer"
@@ -494,7 +495,7 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
         </div>
         <h3>Host management</h3>
-        <p>Browse by group with search, favorites and collapsing. Create empty groups, or add a host right next to a group.</p>
+        <p>Browse by group with search, favorites and collapsing. Every field in the add form is marked required or optional with a hint and an example, mistakes are flagged at once, and a host can have a display name (Chinese is fine).</p>
       </article>
 
       <article class="card reveal" style="--d:90ms">
@@ -533,32 +534,32 @@
         <div class="card-icon">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><polyline points="3 3 3 8 8 8"/><polyline points="12 7 12 12 15 14"/></svg>
         </div>
-        <h3>Snapshots and restore</h3>
-        <p>Every change is backed up automatically. A config-only local snapshot is made daily by default (weekly or off if you prefer), or create one by hand and restore after previewing the diff.</p>
+        <h3>Encrypted backup and restore</h3>
+        <p>The file you are about to change is backed up automatically. With a backup passphrase set, local snapshots and the iCloud copy are both encrypted, one master switch manages automatic backups, and the diff is previewed before any restore.</p>
       </article>
 
       <article class="card reveal" style="--d:0ms">
         <div class="card-icon">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
         </div>
-        <h3>Encrypted iCloud sync</h3>
-        <p>Push your config to iCloud Drive encrypted, then preview and pull it on another Mac. The passphrase is never uploaded and private keys are not synced.</p>
+        <h3>iCloud sync</h3>
+        <p>When your config changes, an encrypted copy goes to iCloud Drive within seconds; on another Mac, preview the diff under Cloud devices and pull it. Always encrypted, and private keys are never uploaded.</p>
       </article>
 
       <article class="card reveal" style="--d:90ms">
         <div class="card-icon">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         </div>
-        <h3>Conflicts never overwrite</h3>
-        <p>The file version is checked again right before writing. If another program changed it in the meantime, the app keeps their version and reports a conflict.</p>
+        <h3>Import and export</h3>
+        <p>Export host config as a .zip, or as an encrypted .cssh file with its own passphrase; on import the passphrase is checked first and each file is previewed as a diff. No private keys.</p>
       </article>
 
       <article class="card reveal" style="--d:180ms">
         <div class="card-icon">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
         </div>
-        <h3>Free and open source</h3>
-        <p>MIT-licensed and written in Swift, with the source, tests and release process all on GitHub.</p>
+        <h3>Startup and updates</h3>
+        <p>Optional launch at startup (off by default) keeps the global shortcut available; the About page links to the website and GitHub and can check for updates.</p>
       </article>
     </div>
   </div>
@@ -653,6 +654,7 @@
         <ul class="list">
           <li><span><code>config</code> is only the entry point: the first time you add a host, the app inserts two lines such as <code>Include config.d/*.conf</code> before the <code>Host</code> rules and shows them in the preview.</span></li>
           <li><span>Existing <code>Host</code> blocks are read and shown as they are; the app does not move them.</span></li>
+          <li><span>A host can have a display name and its file is named after it: "Production API" is saved as <code>config.d/Engineering/Production API.conf</code>, and the form shows the "will be saved as" path live.</span></li>
           <li><span>Deleting a group is previewed first and its hosts move to "Ungrouped"; on a name clash or unrecognized content it stops without overwriting any file.</span></li>
         </ul>
       </div>
@@ -697,12 +699,97 @@
           <li><span>Never stores SSH passwords, and everyday use does not read private key contents into the app.</span></li>
           <li><span>Never runs <code>ssh -G</code> automatically, because <code>Match exec</code> can run local commands.</span></li>
           <li><span>Never rewrites complex config it cannot locate safely through the simple form; such hosts stay read-only.</span></li>
-          <li><span>Never uploads private keys to iCloud.</span></li>
+          <li><span>Never uploads private keys to iCloud, and never puts them in any snapshot or backup.</span></li>
         </ul>
       </div>
     </div>
 
-    <p class="callout reveal" style="margin-top: 16px;"><b>Local snapshots are not encrypted separately:</b> manual snapshots contain only config files by default. To include private keys you must confirm once and tick each key; anyone who can read the snapshot files may get the keys, so set a passphrase on your private keys first.</p>
+    <p class="callout reveal" style="margin-top: 16px;"><b>Local snapshots are encrypted by default:</b> set a backup passphrase first. You can switch to unencrypted in Settings, and then a snapshot holds the config in plain text (host addresses, users, ports and key paths) that anyone who can read the file can see, so you get a risk confirmation first and the app keeps flagging "local snapshots are unencrypted".</p>
+  </div>
+</section>
+
+<!-- ==================== 备份与恢复 ==================== -->
+<section class="section" id="backup">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Backup &amp; restore</span>
+      <h2>Backup and restore</h2>
+      <p class="section-desc">Under Settings › Backup: status, backup passphrase and automatic backup, top to bottom.</p>
+    </div>
+
+    <div class="grid grid-2 quick-grid">
+      <figure class="reveal" style="--d:0ms">
+        <a class="shot" href="/shot-backup.png" target="_blank" rel="noopener noreferrer"><img src="/shot-backup.png" alt="The Backup page in Settings: a status card at the top says automatic backup is on and shows the latest local snapshot and iCloud sync times, followed by the local snapshot encryption option, the backup passphrase and the automatic backup switch" width="1400" height="1360" loading="lazy"></a>
+        <figcaption class="shot-cap"><b>Backup page</b>: status, passphrase and the automatic backup switch</figcaption>
+      </figure>
+      <figure class="reveal" style="--d:90ms">
+        <a class="shot" href="/shot-restore.png" target="_blank" rel="noopener noreferrer"><img src="/shot-restore.png" alt="The browse and restore window: encrypted and unencrypted snapshots are listed in two groups on the left, and the config files in the selected snapshot plus a restore button on the right" width="1800" height="1360" loading="lazy"></a>
+        <figcaption class="shot-cap"><b>Browse and restore</b>: encrypted and unencrypted snapshots, listed in groups</figcaption>
+      </figure>
+    </div>
+
+    <div class="grid grid-3" style="margin-top: 16px;">
+      <article class="card reveal" style="--d:0ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        </div>
+        <h3>Set a backup passphrase first</h3>
+        <p>At least 12 characters. Encrypted local snapshots and the iCloud copy both use it. It is kept in this Mac’s keychain and never uploaded; if you lose it, those backups cannot be recovered. The keychain is read at most once per run, so choose Always Allow the first time.</p>
+      </article>
+      <article class="card reveal" style="--d:90ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3>Local snapshots</h3>
+        <p>Config and Include files are saved encrypted by default, or switch to unencrypted behind a risk confirmation. The finest interval is once a day, skipped when nothing changed; the last 14 automatic snapshots are kept by default and your manual ones are never touched.</p>
+      </article>
+      <article class="card reveal" style="--d:180ms">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+        </div>
+        <h3>Sync to iCloud</h3>
+        <p>Whenever the config changes, this Mac’s encrypted copy is uploaded within seconds, and saving several hosts in a row uploads once. You can also press Back up now at any time.</p>
+      </article>
+    </div>
+
+    <p class="note reveal"><b>Browse and restore:</b> click Browse and Restore, and selecting an encrypted snapshot unlocks it with the saved passphrase and lists its files; after Restore this snapshot you see a line-by-line diff and nothing is written until you confirm. A restore only writes config files back, never restores private keys, and does not delete files added after the snapshot. Without a passphrase, encrypted snapshots and iCloud sync do not run.</p>
+    <p class="callout reveal" style="margin-top: 16px;"><b>Snapshots hold config files only, never private keys.</b> Back up your private keys your own way.</p>
+  </div>
+</section>
+
+<!-- ==================== 导入与导出 ==================== -->
+<section class="section" id="transfer">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Import &amp; export</span>
+      <h2>Import and export</h2>
+      <p class="section-desc">Take your host config to another Mac, or hand it to a colleague. Find it under Settings › Backup › Import and export.</p>
+    </div>
+
+    <div class="grid grid-2 quick-grid">
+      <figure class="reveal" style="--d:0ms">
+        <a class="shot" href="/shot-export.png" target="_blank" rel="noopener noreferrer"><img src="/shot-export.png" alt="The export dialog: switch between a .zip archive and an encrypted .cssh file, with an orange warning that the archive is not encrypted when .zip is chosen" width="1400" height="1360" loading="lazy"></a>
+        <figcaption class="shot-cap"><b>Export</b>: a zip is not encrypted, an encrypted file needs a passphrase</figcaption>
+      </figure>
+      <div class="card reveal" style="--d:90ms">
+        <h3 style="margin-top:0">Export</h3>
+        <p>Click Export host config and choose a format:</p>
+        <ul class="list">
+          <li><span><b>Archive .zip</b> (default): the files under <code>config</code> and <code>config.d/</code> plus a checksum manifest. Not encrypted, so anyone who gets it can see your host addresses and users.</span></li>
+          <li><span><b>Encrypted file .cssh</b>: set a passphrase just for this file (at least 12 characters); it is encrypted with AES-GCM and cannot be recovered if the passphrase is lost.</span></li>
+        </ul>
+        <p>Neither format includes private keys. Include files outside <code>~/.ssh</code> are not exported, and you are told how many were skipped.</p>
+        <h3>Import</h3>
+        <ul class="list">
+          <li><span>An encrypted file asks for its passphrase first and shows its contents only after it checks out; a wrong passphrase or a modified file is rejected outright and nothing is written.</span></li>
+          <li><span>A zip exported by ConfigSSH is checked file by file against its manifest, and modified files are rejected. A zip made with Finder or by hand can be imported too, but has no manifest, so check the diff yourself.</span></li>
+          <li><span>By default only host files are imported and your current main config is kept; to replace the global settings too, tick "Also overwrite the current main config".</span></li>
+          <li><span>Click Preview changes to see each file’s diff before confirming. Only files at the same path are added or overwritten, nothing else is deleted, and overwritten files are backed up first; files with reserved names such as keys or <code>known_hosts</code>, or with path traversal (<code>../</code>), are rejected.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="note reveal"><b>Imported hosts not showing?</b> If your current main config has no <code>Include config.d/*.conf</code>, the imported hosts will not show up yet. You are reminded after the import; add the Include by hand, or import again with the overwrite option ticked.</p>
   </div>
 </section>
 
@@ -721,7 +808,7 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </div>
         <h3>Encrypted on your Mac</h3>
-        <p>Content is encrypted locally with AES-GCM, using a key derived from a shared passphrase you set (at least 12 characters). The passphrase is never uploaded.</p>
+        <p>Content is encrypted locally with AES-GCM, using a key derived from the backup passphrase. The passphrase is never uploaded, and every Mac uses the same one.</p>
       </article>
       <article class="card reveal" style="--d:90ms">
         <div class="card-icon">
@@ -735,11 +822,16 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </div>
         <h3>Preview before pulling</h3>
-        <p>Push and pull both show the file count and per-file diffs first; a pull only overwrites files at the same path, after a backup. Only <code>config</code> and the <code>.conf</code> files under <code>config.d/</code> are synced.</p>
+        <p>On another Mac, pick a device under Cloud devices and pull, and confirm after viewing each file’s diff; a pull only overwrites files at the same path, after a backup. Only <code>config</code> and the <code>.conf</code> files under <code>config.d/</code> are synced.</p>
       </article>
     </div>
 
-    <p class="note reveal"><b>Note:</b> the app can only confirm a file was written to the local iCloud Drive folder, not that it reached the cloud, so check the sync status in Finder. If you lose the passphrase, the cloud copy cannot be decrypted. Absolute paths and <code>IdentityFile</code> locations may differ between Macs, so review them after pulling.</p>
+    <figure class="reveal" style="max-width: 620px; margin: 16px auto 0;">
+      <a class="shot" href="/shot-cloud.png" target="_blank" rel="noopener noreferrer"><img src="/shot-cloud.png" alt="The Cloud devices page: two sample Macs with device name, last upload time and file count, this Mac marked, and the preview pull button below" width="1400" height="1360" loading="lazy"></a>
+      <figcaption class="shot-cap"><b>Cloud devices</b>: device name, last upload time and file count for each Mac that has uploaded</figcaption>
+    </figure>
+
+    <p class="note reveal"><b>Note:</b> the app can only confirm a file was written to the local iCloud Drive folder, not that it reached the cloud, so check the sync status in Finder. If you lose the passphrase, the cloud copy cannot be decrypted. Absolute paths and <code>IdentityFile</code> locations may differ between Macs, so review them after pulling. Include files outside <code>~/.ssh</code> are not uploaded; tick the setting that lets the cloud copy omit them, or automatic sync pauses. After a passphrase change, if this Mac’s existing cloud file cannot be decrypted, automatic sync stops instead of overwriting and waits for your confirmation under Cloud devices and pull.</p>
   </div>
 </section>
 
@@ -785,8 +877,10 @@ open dist/ConfigSSH.app</pre></div>
         <tbody>
           <tr><th>Terminal access</th><td>The first time you launch through Terminal or Ghostty, macOS asks for Automation permission; choose Allow</td></tr>
           <tr><th>Nothing happens</th><td>Check System Settings › Privacy &amp; Security › Automation, and the terminal's detection status under Settings › Terminal in the app; a custom terminal needs the absolute CLI path and arguments containing <code>{alias}</code> or <code>{ssh}</code></td></tr>
-          <tr><th>Made a mistake</th><td>Find the change under Settings › Config &amp; Backups and restore it; the diff is shown before restoring as well</td></tr>
-          <tr><th>Known limits</th><td>The static check in full-text editing cannot guarantee every OpenSSH option is valid on your system; only an Apple Silicon build is provided for now</td></tr>
+          <tr><th>Made a mistake</th><td>The file you are about to change is backed up automatically each time: find that entry under Change log in the sidebar and restore it; to go back to an earlier overall state, restore a snapshot under Settings › Backup › Browse and restore. The diff is always shown before restoring</td></tr>
+          <tr><th>Lost the passphrase</th><td>It lives only in this Mac’s keychain, there is no back door and it cannot be recovered; snapshots and the iCloud copy encrypted with it can no longer be opened, but your actual config files are unaffected. Remove the old one and set a new one under Settings › Backup</td></tr>
+          <tr><th>No hosts after import</th><td>Import writes only host files and keeps your current main config; without <code>Include config.d/*.conf</code> in it, those hosts do not show. Add the Include by hand, or import again with “Also overwrite the current main config” ticked</td></tr>
+          <tr><th>Known limits</th><td>The static check in full-text editing cannot guarantee every OpenSSH option is valid on your system; only an Apple Silicon build is provided for now; Deploy public key does not support SFTP-only servers; iCloud sync can only confirm a write to the local iCloud Drive folder, and real sync between several Macs has not been fully verified; while unsigned, the keychain prompt may appear again after an update</td></tr>
         </tbody>
       </table>
     </div>
@@ -813,7 +907,7 @@ open dist/ConfigSSH.app</pre></div>
       <a href="https://github.com/AlexWuYh/ConfigSSH" target="_blank" rel="noopener noreferrer">GitHub repository</a> ·
       <a href="https://github.com/AlexWuYh/ConfigSSH/releases" target="_blank" rel="noopener noreferrer">Releases</a>
     </p>
-    <p>All screenshots here come from the real app running on a temporary sanitized config; <code>api.example.net</code>, <code>192.0.2.21</code> and similar are example addresses.</p>
+    <p>All screenshots here come from the real app running on a temporary sanitized config and /tmp fixtures, and the snapshot and cloud device files are sample data made for them; <code>api.example.net</code>, <code>192.0.2.21</code> and similar are example addresses.</p>
     <div class="footer-meta">
     <p class="author-wrap">
       <a class="author-link" href="https://github.com/AlexWuYh" target="_blank" rel="noopener noreferrer"
